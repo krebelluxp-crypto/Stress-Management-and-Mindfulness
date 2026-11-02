@@ -1,12 +1,15 @@
 
 ///============================================
-/// WELCOME TO MY CODE!
 /// THE ESCAPE WITHIN
 /// STRESS MANAGEMENT AND MINDFULNESS
 ///
-/// This game has 5 different rooms.
-/// Each room teaches a mindfulness skill.
-/// Participants complete challenges to escape.
+/// FULL JAVASCRIPT GAME
+///
+/// ROOM 1 - BREATHING CHAMBER
+/// ROOM 2 - EMOTION GALLERY
+/// ROOM 3 - WEIGHT OF WORDS
+/// ROOM 4 - RELEASE GARDEN
+/// ROOM 5 - UNITY VAULT
 ///============================================
 
 
@@ -14,13 +17,32 @@
 /// GLOBAL VARIABLES
 ///===========================================
 
-// Canvas
+// GAME CANVAS
 var canvas;
 var ctx;
+
 var w = 1000;
 var h = 750;
 
-// Game Variables
+// WATER CANVAS
+var waterCanvas;
+var waterCtx;
+
+var waterW = 0;
+var waterH = 0;
+
+var waterTimer = 0;
+var waterRipples = [];
+
+// GAME COLOURS
+var sageGreen = "#dce6d5";
+var lightGreen = "#b5cbb1";
+var mutedGreen = "#789c79";
+var forestGreen = "#416f50";
+var darkGreen = "#234c35";
+var cream = "#f2f0df";
+
+// GAME VARIABLES
 var phase = 1;
 var score = 0;
 var gameStarted = false;
@@ -29,7 +51,9 @@ var playerName = "";
 var teamName = "";
 var playerNumber = 0;
 
-// Rooms
+var animationTimer = 0;
+
+// ROOM NAMES
 var rooms = [
     "Breathing Chamber",
     "Emotion Gallery",
@@ -38,7 +62,7 @@ var rooms = [
     "Unity Vault"
 ];
 
-// Secret Words
+// FINAL SECRET WORDS
 var secretWords = [
     "PAUSE",
     "BREATHE",
@@ -47,98 +71,334 @@ var secretWords = [
     "CONNECT"
 ];
 
-// Breathing Variables
-var breathTimer = 0;
+// BREATHING VARIABLES
+var breathStartTime = 0;
+var breathSeconds = 0;
 var breathCycles = 0;
 var brainSize = 1;
-var brainFloat = 0;
 var breathingFinished = false;
 
-// Drawing Variables
+// DRAWING VARIABLES
 var drawing = false;
 var drawingStarted = false;
+var drawingCanvas;
+var drawingCtx;
 
-// Thought Wall Variables
+var lastDrawX = 0;
+var lastDrawY = 0;
+
+// NEGATIVE THOUGHTS
 var thoughts = [
-    {text:"I'm not good enough", broken:false},
-    {text:"I'm going to fail", broken:false},
-    {text:"Everyone is judging me", broken:false},
-    {text:"I have to be perfect", broken:false}
+    {
+        text: "I'm not good enough",
+        broken: false
+    },
+    {
+        text: "I'm going to fail",
+        broken: false
+    },
+    {
+        text: "Everyone is judging me",
+        broken: false
+    },
+    {
+        text: "I have to be perfect",
+        broken: false
+    }
 ];
 
 var bricksBroken = 0;
 
-// Garden Variables
+// GARDEN VARIABLES
 var stars = [];
+var gardenReleased = false;
 var gardenFinished = false;
 
-// Animation Variables
-var animationTimer = 0;
-
-
-//===========================================
-/// EXECUTION SECTION
-//===========================================
-
-setUpCanvas();
-animationLoop();
-
-
-// Canvas Mouse Controls
-canvas.onclick = function(e) {
-
-    var rect = canvas.getBoundingClientRect();
-
-    var x = (e.clientX - rect.left) * w / rect.width;
-    var y = (e.clientY - rect.top) * h / rect.height;
-
-    // Title Screen
-    if (phase === 1) {
-        phase = 2;
-    }
-
-    // Instructions
-    else if (phase === 2) {
-        phase = 3;
-    }
-
-    // Breathing Room
-    else if (phase === 3) {
-        if (breathingFinished === true) {
-            finishRoom();
-        }
-    }
-
-    // Weight of Words
-    else if (phase === 5) {
-        clickBrick(x, y);
-    }
-
-    // Release Garden
-    else if (phase === 6) {
-        if (gardenFinished === true) {
-            finishRoom();
-        }
-    }
-
-    // Win Screen
-    else if (phase === 8) {
-        resetGame();
-    }
-
+// GAME SETTINGS
+var game = {
+    title: "The Escape Within",
+    pointsPerRoom: 100,
+    finished: false
 };
 
 
-//===========================================
+///===========================================
+/// MAIN PROGRAM
+///===========================================
+
+setUpCanvas();
+setUpDrawingCanvas();
+setUpWaterCanvas();
+
+setUpMouseControls();
+
+animationLoop();
+drawWaterRipples();
+
+console.log("Welcome to The Escape Within!");
+
+
+///===========================================
+/// FUNCTION SECTION
+///===========================================
+
+
+///-----------------------------------------
+/// SET UP GAME CANVAS
+///-----------------------------------------
+
+function setUpCanvas() {
+
+    canvas = document.getElementById("MyCanvas");
+
+    ctx = canvas.getContext("2d");
+
+    canvas.width = w;
+    canvas.height = h;
+
+}
+
+
+///-----------------------------------------
+/// SET UP DRAWING CANVAS
+///-----------------------------------------
+
+function setUpDrawingCanvas() {
+
+    // This canvas saves the player's drawing.
+    // It is separate from the animated game canvas.
+
+    drawingCanvas = document.createElement("canvas");
+
+    drawingCanvas.width = 700;
+    drawingCanvas.height = 450;
+
+    drawingCtx = drawingCanvas.getContext("2d");
+
+    clearDrawing();
+
+}
+
+
+///-----------------------------------------
+/// SET UP WATER CANVAS
+///-----------------------------------------
+
+function setUpWaterCanvas() {
+
+    waterCanvas = document.getElementById("waterCanvas");
+
+    waterCtx = waterCanvas.getContext("2d");
+
+    waterW = window.innerWidth;
+
+    waterH = document.getElementById("welcomePage").offsetHeight;
+
+    waterCanvas.width = waterW;
+    waterCanvas.height = waterH;
+
+    waterRipples = [];
+
+    for (var i = 0; i < 12; i++) {
+
+        waterRipples.push({
+
+            x: Math.random() * waterW,
+
+            y: Math.random() * waterH,
+
+            size: 30 + Math.random() * 100,
+
+            speed: 0.2 + Math.random() * 0.4,
+
+            offset: Math.random() * Math.PI * 2
+
+        });
+
+    }
+
+}
+
+
+///-----------------------------------------
+/// DRAW WATER RIPPLES
+///-----------------------------------------
+
+function drawWaterRipples() {
+
+    if (document.getElementById("welcomePage").style.display !== "none") {
+
+        waterCtx.clearRect(0, 0, waterW, waterH);
+
+        waterTimer += 0.02;
+
+        for (var i = 0; i < waterRipples.length; i++) {
+
+            var r = waterRipples[i];
+
+            var movement = Math.sin(waterTimer + r.offset) * 15;
+
+            var radius = r.size + movement;
+
+            for (var j = 0; j < 4; j++) {
+
+                var ringSize = radius + j * 22;
+
+                waterCtx.beginPath();
+
+                waterCtx.ellipse(
+                    r.x,
+                    r.y,
+                    ringSize,
+                    ringSize * 0.5,
+                    0,
+                    0,
+                    Math.PI * 2
+                );
+
+                waterCtx.strokeStyle =
+                    "rgba(255,255,255," + (0.18 - j * 0.035) + ")";
+
+                waterCtx.lineWidth = 2;
+
+                waterCtx.stroke();
+
+            }
+
+            r.y -= r.speed;
+
+            if (r.y < -200) {
+                r.y = waterH + 200;
+            }
+
+        }
+
+    }
+
+    requestAnimationFrame(drawWaterRipples);
+
+}
+
+
+///-----------------------------------------
+/// ENTER GAME FROM WELCOME PAGE
+///-----------------------------------------
+
+function enterGame() {
+
+    document.getElementById("welcomePage").style.display = "none";
+
+    document.getElementById("gamePage").style.display = "block";
+
+    phase = 1;
+
+    console.log("Entering The Escape Within!");
+
+}
+
+
+///-----------------------------------------
+/// START GAME
+///-----------------------------------------
+
+function startGame() {
+
+    playerName = document.getElementById("playerName").value;
+
+    teamName = document.getElementById("teamName").value;
+
+    playerNumber = Number(
+        document.getElementById("playerNumber").value
+    );
+
+    if (playerName === "") {
+        playerName = "Player";
+    }
+
+    if (teamName === "") {
+        teamName = "Team Mindful";
+    }
+
+    resetRoomVariables();
+
+    score = 0;
+
+    gameStarted = true;
+    game.finished = false;
+
+    phase = 2;
+
+    document.getElementById("gameControls").style.display = "none";
+
+    console.log("Player: " + playerName);
+    console.log("Team: " + teamName);
+
+}
+
+
+///-----------------------------------------
+/// RESET ROOM VARIABLES
+///-----------------------------------------
+
+function resetRoomVariables() {
+
+    breathStartTime = 0;
+    breathSeconds = 0;
+    breathCycles = 0;
+    brainSize = 1;
+    breathingFinished = false;
+
+    drawing = false;
+    drawingStarted = false;
+
+    clearDrawing();
+
+    bricksBroken = 0;
+
+    for (var i = 0; i < thoughts.length; i++) {
+        thoughts[i].broken = false;
+    }
+
+    stars = [];
+
+    gardenReleased = false;
+    gardenFinished = false;
+
+    document.getElementById("stressThought").value = "";
+
+    document.getElementById("vaultAnswer").value = "";
+
+    hideControls();
+
+}
+
+
+///-----------------------------------------
+/// HIDE GAME CONTROLS
+///-----------------------------------------
+
+function hideControls() {
+
+    document.getElementById("drawingControls").style.display = "none";
+
+    document.getElementById("gardenControls").style.display = "none";
+
+    document.getElementById("vaultControls").style.display = "none";
+
+}
+
+
+///-----------------------------------------
 /// MAIN ANIMATION LOOP
-//===========================================
+///-----------------------------------------
 
 function animationLoop() {
 
-    clearBG();
-    drawBackground();
-
     animationTimer++;
+
+    clearBG();
+
+    drawBackground();
 
     if (phase === 1) {
         drawTitleScreen();
@@ -173,25 +433,6 @@ function animationLoop() {
     }
 
     requestAnimationFrame(animationLoop);
-}
-
-
-//===========================================
-/// FUNCTION SECTION
-//===========================================
-
-
-///-----------------------------------------
-/// SET UP CANVAS
-///-----------------------------------------
-
-function setUpCanvas() {
-
-    canvas = document.getElementById("MyCanvas");
-    ctx = canvas.getContext("2d");
-
-    canvas.width = w;
-    canvas.height = h;
 
 }
 
@@ -202,118 +443,211 @@ function setUpCanvas() {
 
 function clearBG() {
 
-    ctx.fillStyle = "#160d30";
-    ctx.fillRect(0, 0, w, h);
+    ctx.clearRect(0, 0, w, h);
 
 }
 
 
 ///-----------------------------------------
-/// BACKGROUND GRAPHICS
+/// DRAW GREEN BACKGROUND
 ///-----------------------------------------
 
 function drawBackground() {
 
-    var grad = ctx.createLinearGradient(0, 0, 0, h);
+    var gradient = ctx.createLinearGradient(0, 0, w, h);
 
-    grad.addColorStop(0, "#25134b");
-    grad.addColorStop(1, "#533579");
+    gradient.addColorStop(0, sageGreen);
 
-    ctx.fillStyle = grad;
+    gradient.addColorStop(0.3, lightGreen);
+
+    gradient.addColorStop(0.6, mutedGreen);
+
+    gradient.addColorStop(1, forestGreen);
+
+    ctx.fillStyle = gradient;
+
     ctx.fillRect(0, 0, w, h);
 
-    // Floating Stars
-    for (var i = 0; i < 35; i++) {
+    drawGameRipples();
 
-        var x = (i * 137) % w;
-        var y = (i * 89) % h;
-
-        var size = 2 + Math.sin(animationTimer * 0.03 + i);
-
-        ctx.fillStyle = "#e9d5ff";
-
-        ctx.beginPath();
-        ctx.arc(x, y, Math.max(1, size), 0, Math.PI * 2);
-        ctx.fill();
-    }
 }
 
 
 ///-----------------------------------------
-/// TITLE SCREEN
+/// DRAW GAME WATER RIPPLES
+///-----------------------------------------
+
+function drawGameRipples() {
+
+    for (var i = 0; i < 8; i++) {
+
+        var x = 100 + (i % 4) * 270;
+
+        var y = 100 + Math.floor(i / 4) * 450;
+
+        var movement = Math.sin(animationTimer * 0.015 + i) * 18;
+
+        for (var j = 0; j < 3; j++) {
+
+            var size = 60 + j * 35 + movement;
+
+            ctx.beginPath();
+
+            ctx.ellipse(
+                x,
+                y,
+                Math.max(5, size),
+                Math.max(5, size * 0.45),
+                0,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.strokeStyle = "rgba(255,255,255,0.15)";
+
+            ctx.lineWidth = 2;
+
+            ctx.stroke();
+
+        }
+
+    }
+
+}
+
+
+///-----------------------------------------
+/// DRAW TITLE SCREEN
 ///-----------------------------------------
 
 function drawTitleScreen() {
 
-    drawBrainBuddy(w/2, 300, 1);
+    ctx.fillStyle = darkGreen;
 
-    ctx.fillStyle = "#ffffff";
     ctx.textAlign = "center";
 
-    ctx.font = "bold 55px Arial";
-    ctx.fillText("THE ESCAPE WITHIN", w/2, 120);
+    ctx.font = "500 95px Cormorant Garamond";
 
-    ctx.font = "25px Arial";
-    ctx.fillText("A Mindfulness Adventure", w/2, 175);
+    ctx.fillText("the escape", w / 2, 230);
 
-    ctx.font = "22px monospace";
-    ctx.fillText("Click to Continue", w/2, 600);
+    ctx.font = "italic 105px Cormorant Garamond";
+
+    ctx.fillText("within.", w / 2, 335);
+
+    ctx.font = "italic 35px Cormorant Garamond";
+
+    ctx.fillText(
+        "inhale. exhale. begin again.",
+        w / 2,
+        420
+    );
+
+    ctx.font = "25px Georgia";
+
+    ctx.fillText(
+        "Click to Continue",
+        w / 2,
+        610
+    );
+
 }
 
 
 ///-----------------------------------------
-/// INSTRUCTION SCREEN
+/// DRAW INSTRUCTIONS
 ///-----------------------------------------
 
 function drawInstructions() {
 
-    ctx.fillStyle = "white";
+    ctx.fillStyle = darkGreen;
+
     ctx.textAlign = "center";
 
-    ctx.font = "bold 45px Arial";
-    ctx.fillText("HOW TO PLAY", w/2, 120);
+    ctx.font = "500 65px Cormorant Garamond";
 
-    ctx.font = "22px Arial";
+    ctx.fillText("your journey begins.", w / 2, 135);
 
-    ctx.fillText("Complete 5 mindfulness challenges.", w/2, 230);
-    ctx.fillText("Each room teaches a different skill.", w/2, 280);
-    ctx.fillText("Earn 100 points for each room.", w/2, 330);
-    ctx.fillText("Work together to unlock the final vault.", w/2, 380);
+    ctx.font = "25px Georgia";
 
-    ctx.font = "20px monospace";
-    ctx.fillText("Click to Enter the First Room", w/2, 550);
+    ctx.fillText(
+        "Complete five mindfulness challenges.",
+        w / 2,
+        245
+    );
+
+    ctx.fillText(
+        "Each room teaches a different stress-management skill.",
+        w / 2,
+        300
+    );
+
+    ctx.fillText(
+        "Earn 100 points for each completed room.",
+        w / 2,
+        355
+    );
+
+    ctx.fillText(
+        "Work with your team to unlock the final vault.",
+        w / 2,
+        410
+    );
+
+    ctx.font = "italic 32px Cormorant Garamond";
+
+    ctx.fillText(
+        "There is no need to rush.",
+        w / 2,
+        510
+    );
+
+    ctx.font = "25px Georgia";
+
+    ctx.fillText(
+        "Click to Enter the Breathing Chamber",
+        w / 2,
+        625
+    );
+
 }
 
 
 ///-----------------------------------------
-/// START GAME
+/// DRAW ROOM TITLE
 ///-----------------------------------------
 
-function startGame() {
+function drawRoomTitle(title) {
 
-    playerName = document.getElementById("playerName").value;
-    teamName = document.getElementById("teamName").value;
+    ctx.fillStyle = darkGreen;
 
-    playerNumber = Number(
-        document.getElementById("playerNumber").value
+    ctx.textAlign = "center";
+
+    ctx.font = "500 52px Cormorant Garamond";
+
+    ctx.fillText(title, w / 2, 85);
+
+    ctx.strokeStyle = forestGreen;
+
+    ctx.lineWidth = 2;
+
+    ctx.beginPath();
+
+    ctx.moveTo(350, 110);
+
+    ctx.lineTo(650, 110);
+
+    ctx.stroke();
+
+    ctx.fillStyle = darkGreen;
+
+    ctx.font = "22px Georgia";
+
+    ctx.fillText(
+        "Team: " + teamName + "  |  Score: " + score,
+        w / 2,
+        710
     );
 
-    if (playerName === "") {
-        playerName = "Player";
-    }
-
-    if (teamName === "") {
-        teamName = "Team Mindful";
-    }
-
-    gameStarted = true;
-    phase = 3;
-    score = 0;
-
-    document.getElementById("gameControls").style.display = "none";
-
-    console.log("Welcome " + playerName);
-    console.log("Team: " + teamName);
 }
 
 
@@ -326,82 +660,116 @@ function drawBrainBuddy(x, y, size) {
     ctx.save();
 
     ctx.translate(x, y);
+
     ctx.scale(size, size);
 
-    // Body
-    ctx.fillStyle = "#8dd9cc";
+    // BODY
+    ctx.fillStyle = "#91c7a7";
 
     ctx.beginPath();
+
     ctx.ellipse(0, 85, 65, 75, 0, 0, Math.PI * 2);
+
     ctx.fill();
 
-    // Arms
-    ctx.strokeStyle = "#8dd9cc";
+    // ARMS
+    ctx.strokeStyle = "#91c7a7";
+
     ctx.lineWidth = 20;
+
     ctx.lineCap = "round";
 
     ctx.beginPath();
+
     ctx.moveTo(-55, 50);
     ctx.lineTo(-85, 95);
+
     ctx.moveTo(55, 50);
     ctx.lineTo(85, 95);
+
     ctx.stroke();
 
-    // Legs
+    // LEGS
     ctx.beginPath();
+
     ctx.moveTo(-30, 140);
     ctx.lineTo(-35, 175);
+
     ctx.moveTo(30, 140);
     ctx.lineTo(35, 175);
+
     ctx.stroke();
 
-    // Brain Shape
-    ctx.fillStyle = "#ffb5d8";
-    ctx.strokeStyle = "#b967a3";
+    // BRAIN
+    ctx.fillStyle = "#f0b7c9";
+
+    ctx.strokeStyle = "#b9758d";
+
     ctx.lineWidth = 5;
 
     ctx.beginPath();
+
     ctx.ellipse(0, -35, 105, 85, 0, 0, Math.PI * 2);
+
     ctx.fill();
     ctx.stroke();
 
-    // Brain Folds
-    ctx.strokeStyle = "#e57eb4";
+    // BRAIN FOLDS
+    ctx.strokeStyle = "#d98ea9";
+
     ctx.lineWidth = 4;
 
     for (var i = 0; i < 5; i++) {
 
         ctx.beginPath();
 
-        ctx.arc(-55 + i * 27, -60, 18, 0, Math.PI);
+        ctx.arc(
+            -55 + i * 27,
+            -60,
+            18,
+            0,
+            Math.PI
+        );
+
         ctx.stroke();
+
     }
 
-    // Eyes
-    ctx.fillStyle = "#302044";
+    // EYES
+    ctx.fillStyle = darkGreen;
 
     ctx.beginPath();
+
     ctx.arc(-35, -20, 9, 0, Math.PI * 2);
+
     ctx.arc(35, -20, 9, 0, Math.PI * 2);
+
     ctx.fill();
 
-    // Blush
-    ctx.fillStyle = "#ff80aa";
+    // CHEEKS
+    ctx.fillStyle = "#e98fa9";
 
     ctx.beginPath();
+
     ctx.ellipse(-65, 0, 15, 8, 0, 0, Math.PI * 2);
+
     ctx.ellipse(65, 0, 15, 8, 0, 0, Math.PI * 2);
+
     ctx.fill();
 
-    // Smile
-    ctx.strokeStyle = "#302044";
+    // SMILE
+    ctx.strokeStyle = darkGreen;
+
     ctx.lineWidth = 3;
 
     ctx.beginPath();
+
     ctx.arc(0, -5, 18, 0, Math.PI);
+
     ctx.stroke();
 
     ctx.restore();
+
 }
 
 
@@ -411,57 +779,114 @@ function drawBrainBuddy(x, y, size) {
 
 function breathingChamber() {
 
-    drawRoomTitle("ROOM 1: BREATHING CHAMBER");
+    drawRoomTitle("the breathing chamber.");
 
-    // Breathing Animation
-    // About 60 frames per second
-    breathTimer++;
+    // START TIMER ONCE
+    if (breathStartTime === 0) {
+        breathStartTime = Date.now();
+    }
 
-    var seconds = Math.floor(breathTimer / 60);
+    var elapsed = (Date.now() - breathStartTime) / 1000;
 
-    // One cycle is 8 seconds
-    var breathPosition = seconds % 8;
+    breathSeconds = Math.floor(elapsed);
 
+    breathCycles = Math.floor(elapsed / 8);
+
+    var breathPosition = elapsed % 8;
+
+    // GROW DURING INHALE
+    // SHRINK DURING EXHALE
     if (breathPosition < 4) {
-        brainSize += 0.001;
+
+        brainSize = 0.9 + (breathPosition / 4) * 0.2;
+
     }
 
     else {
-        brainSize -= 0.001;
+
+        brainSize = 1.1 - ((breathPosition - 4) / 4) * 0.2;
+
     }
 
-    brainSize = Math.max(0.95, Math.min(1.1, brainSize));
-
-    brainFloat += 0.04;
-
-    var floatY = Math.sin(brainFloat) * 10;
-
-    drawBrainBuddy(w/2, 340 + floatY, brainSize);
-
-    ctx.fillStyle = "white";
-    ctx.textAlign = "center";
-    ctx.font = "25px Arial";
-
-    if (breathPosition < 4) {
-        ctx.fillText("BREATHE IN", w/2, 580);
-    }
-
-    else {
-        ctx.fillText("BREATHE OUT", w/2, 580);
-    }
-
-    breathCycles = Math.floor(seconds / 8);
-
-    ctx.font = "20px Arial";
-    ctx.fillText("Breathing Cycles: " +
-        Math.min(breathCycles, 3) + "/3", w/2, 625);
-
-    if (breathCycles >= 3) {
+    // STOP AFTER 3 CYCLES
+    if (elapsed >= 24) {
 
         breathingFinished = true;
 
-        ctx.fillText("Great Job! Click to Continue", w/2, 680);
+        brainSize = 1;
+
     }
+
+    // FLOATING MOVEMENT
+    var floatY = Math.sin(animationTimer * 0.03) * 8;
+
+    drawBrainBuddy(w / 2, 345 + floatY, brainSize);
+
+    ctx.fillStyle = darkGreen;
+
+    ctx.textAlign = "center";
+
+    ctx.font = "italic 33px Cormorant Garamond";
+
+    ctx.fillText(
+        "Follow Brain Buddy's breathing rhythm.",
+        w / 2,
+        145
+    );
+
+    ctx.font = "500 45px Cormorant Garamond";
+
+    if (breathingFinished === true) {
+
+        ctx.fillText(
+            "beautifully done.",
+            w / 2,
+            580
+        );
+
+        ctx.font = "25px Georgia";
+
+        ctx.fillText(
+            "Click anywhere to continue.",
+            w / 2,
+            630
+        );
+
+    }
+
+    else {
+
+        if (breathPosition < 4) {
+
+            ctx.fillText(
+                "inhale.",
+                w / 2,
+                580
+            );
+
+        }
+
+        else {
+
+            ctx.fillText(
+                "exhale.",
+                w / 2,
+                580
+            );
+
+        }
+
+        ctx.font = "22px Georgia";
+
+        ctx.fillText(
+            "Breathing Cycles: " +
+            Math.min(breathCycles, 3) + "/3",
+            w / 2,
+            635
+        );
+
+    }
+
 }
 
 
@@ -471,84 +896,151 @@ function breathingChamber() {
 
 function emotionGallery() {
 
-    drawRoomTitle("ROOM 2: EMOTION GALLERY");
+    drawRoomTitle("the emotion gallery.");
 
-    ctx.fillStyle = "white";
+    ctx.fillStyle = darkGreen;
+
     ctx.textAlign = "center";
-    ctx.font = "22px Arial";
 
-    ctx.fillText("Draw what CALMNESS looks like to you.", w/2, 135);
+    ctx.font = "italic 32px Cormorant Garamond";
 
-    // Drawing Area
-    ctx.fillStyle = "#ffffff";
+    ctx.fillText(
+        "Draw what calmness looks like to you.",
+        w / 2,
+        150
+    );
+
+    // DRAWING BACKGROUND
+    ctx.fillStyle = cream;
+
     ctx.fillRect(150, 180, 700, 450);
 
-    ctx.strokeStyle = "#cda9ff";
-    ctx.lineWidth = 5;
+    // SAVED DRAWING
+    ctx.drawImage(drawingCanvas, 150, 180);
+
+    // BORDER
+    ctx.strokeStyle = forestGreen;
+
+    ctx.lineWidth = 4;
+
     ctx.strokeRect(150, 180, 700, 450);
+
 }
 
 
 ///-----------------------------------------
-/// DRAWING CONTROLS
+/// GET MOUSE POSITION
 ///-----------------------------------------
 
-canvas.onmousedown = function(e) {
-
-    if (phase === 4) {
-        drawing = true;
-        drawingStarted = true;
-        drawOnCanvas(e);
-    }
-};
-
-canvas.onmousemove = function(e) {
-
-    if (phase === 4 && drawing === true) {
-        drawOnCanvas(e);
-    }
-};
-
-canvas.onmouseup = function() {
-    drawing = false;
-};
-
-function drawOnCanvas(e) {
+function getMousePosition(e) {
 
     var rect = canvas.getBoundingClientRect();
 
     var x = (e.clientX - rect.left) * w / rect.width;
+
     var y = (e.clientY - rect.top) * h / rect.height;
 
-    if (x > 150 && x < 850 && y > 180 && y < 630) {
+    return {
+        x: x,
+        y: y
+    };
+
+}
+
+
+///-----------------------------------------
+/// DRAW ON CANVAS
+///-----------------------------------------
+
+function drawOnCanvas(e) {
+
+    var mouse = getMousePosition(e);
+
+    var x = mouse.x - 150;
+
+    var y = mouse.y - 180;
+
+    if (x >= 0 && x <= 700 && y >= 0 && y <= 450) {
 
         var color = document.getElementById("drawColor").value;
 
-        ctx.fillStyle = color;
+        drawingCtx.strokeStyle = color;
 
-        ctx.beginPath();
-        ctx.arc(x, y, 8, 0, Math.PI * 2);
-        ctx.fill();
+        drawingCtx.fillStyle = color;
+
+        drawingCtx.lineWidth = 12;
+
+        drawingCtx.lineCap = "round";
+
+        if (drawing === true) {
+
+            drawingCtx.beginPath();
+
+            drawingCtx.moveTo(lastDrawX, lastDrawY);
+
+            drawingCtx.lineTo(x, y);
+
+            drawingCtx.stroke();
+
+        }
+
+        else {
+
+            drawingCtx.beginPath();
+
+            drawingCtx.arc(x, y, 6, 0, Math.PI * 2);
+
+            drawingCtx.fill();
+
+        }
+
+        lastDrawX = x;
+        lastDrawY = y;
+
+        drawingStarted = true;
+
     }
+
 }
+
+
+///-----------------------------------------
+/// CLEAR DRAWING
+///-----------------------------------------
 
 function clearDrawing() {
 
-    ctx.fillStyle = "white";
-    ctx.fillRect(150, 180, 700, 450);
+    drawingCtx.fillStyle = cream;
+
+    drawingCtx.fillRect(0, 0, 700, 450);
 
     drawingStarted = false;
+
 }
+
+
+///-----------------------------------------
+/// FINISH DRAWING
+///-----------------------------------------
 
 function finishDrawing() {
 
+    if (phase !== 4) {
+        return;
+    }
+
     if (drawingStarted === true) {
+
         finishRoom();
+
     }
 
     else {
+
         alert("Draw something before continuing!");
+
     }
+
 }
 
 
@@ -558,47 +1050,72 @@ function finishDrawing() {
 
 function weightOfWords() {
 
-    drawRoomTitle("ROOM 3: WEIGHT OF WORDS");
+    drawRoomTitle("the weight of words.");
 
-    ctx.fillStyle = "white";
+    ctx.fillStyle = darkGreen;
+
     ctx.textAlign = "center";
-    ctx.font = "22px Arial";
 
-    ctx.fillText("Break through the wall of stressful thoughts!", w/2, 135);
+    ctx.font = "italic 32px Cormorant Garamond";
 
-    // Draw Bricks
+    ctx.fillText(
+        "A thought is not always a fact.",
+        w / 2,
+        150
+    );
+
+    // DRAW BRICKS
     for (var i = 0; i < thoughts.length; i++) {
 
         if (thoughts[i].broken === false) {
 
             var x = 120 + (i % 2) * 400;
+
             var y = 230 + Math.floor(i / 2) * 160;
 
-            ctx.fillStyle = "#a26cbb";
+            ctx.fillStyle = forestGreen;
+
             ctx.fillRect(x, y, 360, 120);
 
-            ctx.strokeStyle = "#f2d5ff";
+            ctx.strokeStyle = cream;
+
             ctx.lineWidth = 3;
+
             ctx.strokeRect(x, y, 360, 120);
 
-            ctx.fillStyle = "white";
-            ctx.font = "19px Arial";
+            ctx.fillStyle = cream;
+
+            ctx.font = "28px Cormorant Garamond";
+
             ctx.textAlign = "center";
 
-            ctx.fillText(thoughts[i].text, x + 180, y + 65);
+            ctx.fillText(
+                thoughts[i].text,
+                x + 180,
+                y + 68
+            );
+
         }
+
     }
 
-    ctx.fillStyle = "white";
-    ctx.font = "22px Arial";
+    ctx.fillStyle = darkGreen;
+
+    ctx.font = "24px Georgia";
+
     ctx.textAlign = "center";
 
-    ctx.fillText("Bricks Broken: " + bricksBroken + "/4", w/2, 650);
+    ctx.fillText(
+        "Bricks Broken: " + bricksBroken + "/4",
+        w / 2,
+        650
+    );
+
 }
 
 
 ///-----------------------------------------
-/// CLICK ON BRICKS
+/// CLICK ON THOUGHT BRICKS
 ///-----------------------------------------
 
 function clickBrick(x, y) {
@@ -606,16 +1123,21 @@ function clickBrick(x, y) {
     for (var i = 0; i < thoughts.length; i++) {
 
         var bx = 120 + (i % 2) * 400;
+
         var by = 230 + Math.floor(i / 2) * 160;
 
-        if (thoughts[i].broken === false &&
-            x > bx && x < bx + 360 &&
-            y > by && y < by + 120) {
+        if (
+            thoughts[i].broken === false &&
+            x > bx &&
+            x < bx + 360 &&
+            y > by &&
+            y < by + 120
+        ) {
 
             var answer = prompt(
                 "Thought: " + thoughts[i].text +
-                "\n\nWhat can you remind yourself?" +
-                "\n1. Every negative thought is true." +
+                "\n\nWhich reminder is most helpful?" +
+                "\n\n1. Every negative thought is true." +
                 "\n2. A thought is not always a fact." +
                 "\n3. I should never feel stressed." +
                 "\n\nEnter 1, 2, or 3."
@@ -624,23 +1146,39 @@ function clickBrick(x, y) {
             if (answer === "2") {
 
                 thoughts[i].broken = true;
+
                 bricksBroken++;
 
-                console.log("Brick Broken!");
-
                 if (bricksBroken === thoughts.length) {
-                    alert("You broke the wall!");
+
+                    alert("You broke through the wall!");
+
                     finishRoom();
+
                 }
+
+                else {
+
+                    alert("Great job! Another brick has disappeared.");
+
+                }
+
             }
 
-            else {
-                alert("Try Again! Remember, thoughts are not always facts.");
+            else if (answer !== null) {
+
+                alert(
+                    "Try again! Remember, thoughts are not always facts."
+                );
+
             }
 
             break;
+
         }
+
     }
+
 }
 
 
@@ -650,41 +1188,65 @@ function clickBrick(x, y) {
 
 function releaseGarden() {
 
-    drawRoomTitle("ROOM 4: RELEASE GARDEN");
+    drawRoomTitle("the release garden.");
 
     drawGarden();
 
-    ctx.fillStyle = "white";
+    ctx.fillStyle = darkGreen;
+
     ctx.textAlign = "center";
-    ctx.font = "22px Arial";
 
-    ctx.fillText("Take a moment to let go of a stressful thought.", w/2, 135);
+    ctx.font = "italic 32px Cormorant Garamond";
 
-    // Stars Released
+    ctx.fillText(
+        "Release what you no longer need to carry.",
+        w / 2,
+        150
+    );
+
+    // FLOATING STARS
     for (var i = 0; i < stars.length; i++) {
 
         stars[i].y -= stars[i].speed;
 
-        ctx.fillStyle = "#ffe8a3";
+        ctx.fillStyle = cream;
 
         ctx.beginPath();
-        ctx.arc(stars[i].x, stars[i].y, stars[i].size,
-            0, Math.PI * 2);
+
+        ctx.arc(
+            stars[i].x,
+            stars[i].y,
+            stars[i].size,
+            0,
+            Math.PI * 2
+        );
+
         ctx.fill();
 
         if (stars[i].y < 0) {
+
             stars.splice(i, 1);
+
             i--;
+
         }
+
     }
 
     if (gardenFinished === true) {
 
-        ctx.fillStyle = "white";
-        ctx.font = "22px Arial";
+        ctx.fillStyle = cream;
 
-        ctx.fillText("Click to Continue", w/2, 650);
+        ctx.font = "28px Georgia";
+
+        ctx.fillText(
+            "Click anywhere to continue.",
+            w / 2,
+            660
+        );
+
     }
+
 }
 
 
@@ -694,28 +1256,36 @@ function releaseGarden() {
 
 function drawGarden() {
 
-    // Grass
-    ctx.fillStyle = "#326b52";
+    // GRASS
+    ctx.fillStyle = forestGreen;
+
     ctx.fillRect(0, 520, w, 230);
 
-    // Moon
-    ctx.fillStyle = "#fff2bd";
+    // MOON
+    ctx.fillStyle = cream;
+
     ctx.beginPath();
-    ctx.arc(850, 160, 65, 0, Math.PI * 2);
+
+    ctx.arc(850, 200, 65, 0, Math.PI * 2);
+
     ctx.fill();
 
-    // Flowers
+    // TREES
+    drawTree(100, 500);
+
+    drawTree(900, 500);
+
+    // FLOWERS
     for (var i = 0; i < 12; i++) {
 
         var x = 60 + i * 80;
-        var y = 600 + Math.sin(i) * 30;
+
+        var y = 590 + Math.sin(i) * 25;
 
         drawFlower(x, y);
+
     }
 
-    // Trees
-    drawTree(100, 490);
-    drawTree(900, 490);
 }
 
 
@@ -725,17 +1295,21 @@ function drawGarden() {
 
 function drawFlower(x, y) {
 
-    // Stem
-    ctx.strokeStyle = "#6dd39e";
+    // STEM
+    ctx.strokeStyle = sageGreen;
+
     ctx.lineWidth = 5;
 
     ctx.beginPath();
+
     ctx.moveTo(x, y);
+
     ctx.lineTo(x, y + 55);
+
     ctx.stroke();
 
-    // Petals
-    ctx.fillStyle = "#ff9ac8";
+    // PETALS
+    ctx.fillStyle = cream;
 
     for (var i = 0; i < 5; i++) {
 
@@ -746,18 +1320,24 @@ function drawFlower(x, y) {
         ctx.arc(
             x + Math.cos(angle) * 15,
             y + Math.sin(angle) * 15,
-            12, 0, Math.PI * 2
+            12,
+            0,
+            Math.PI * 2
         );
 
         ctx.fill();
+
     }
 
-    // Center
-    ctx.fillStyle = "#ffdf7c";
+    // FLOWER CENTER
+    ctx.fillStyle = "#e5ce8b";
 
     ctx.beginPath();
+
     ctx.arc(x, y, 10, 0, Math.PI * 2);
+
     ctx.fill();
+
 }
 
 
@@ -767,47 +1347,81 @@ function drawFlower(x, y) {
 
 function drawTree(x, y) {
 
-    ctx.fillStyle = "#76503b";
+    // TRUNK
+    ctx.fillStyle = "#765b45";
+
     ctx.fillRect(x - 15, y - 100, 30, 180);
 
-    ctx.fillStyle = "#438c71";
+    // LEAVES
+    ctx.fillStyle = darkGreen;
 
     ctx.beginPath();
+
     ctx.arc(x, y - 120, 85, 0, Math.PI * 2);
+
     ctx.fill();
+
 }
 
 
 ///-----------------------------------------
-/// RELEASE THOUGHT
+/// RELEASE STRESSFUL THOUGHT
 ///-----------------------------------------
 
 function releaseThought() {
 
-    var thought = document.getElementById("stressThought").value;
-
-    if (thought === "") {
-        alert("Enter a thought or use a made-up example.");
+    if (phase !== 6) {
         return;
     }
 
-    // We do not save or print the thought.
-    document.getElementById("stressThought").value = "";
+    var thought = document.getElementById("stressThought").value;
 
-    // Create Stars
-    for (var i = 0; i < 25; i++) {
+    if (thought.trim() === "") {
 
-        stars.push({
-            x: 350 + Math.random() * 300,
-            y: 500 + Math.random() * 100,
-            size: 2 + Math.random() * 5,
-            speed: 1 + Math.random() * 3
-        });
+        alert("Enter a thought or use a made-up example.");
+
+        return;
+
     }
 
+    // CLEAR THE THOUGHT
+    // WE DO NOT SAVE IT OR PRINT IT
+
+    document.getElementById("stressThought").value = "";
+
+    gardenReleased = true;
+
+    // CREATE FLOATING STARS
+    for (var i = 0; i < 35; i++) {
+
+        stars.push({
+
+            x: 350 + Math.random() * 300,
+
+            y: 480 + Math.random() * 100,
+
+            size: 2 + Math.random() * 5,
+
+            speed: 1 + Math.random() * 3
+
+        });
+
+    }
+
+    askGardenQuestion();
+
+}
+
+
+///-----------------------------------------
+/// GARDEN QUESTION
+///-----------------------------------------
+
+function askGardenQuestion() {
+
     var answer = prompt(
-        "You have a lot of assignments and feel overwhelmed." +
-        "\nWhat could you do?" +
+        "You have a lot of assignments due and feel overwhelmed." +
+        "\n\nWhat could you do?" +
         "\n\n1. Ignore everything." +
         "\n2. Pause, breathe, and make a plan." +
         "\n3. Tell yourself you are failing." +
@@ -815,13 +1429,26 @@ function releaseThought() {
     );
 
     if (answer === "2") {
+
         gardenFinished = true;
-        alert("Great job! You found the garden key.");
+
+        alert(
+            "Great job! You found a helpful way to manage stress."
+        );
+
     }
 
-    else {
-        alert("Try again. Think about a helpful way to manage stress.");
+    else if (answer !== null) {
+
+        alert(
+            "Try again. Think about a healthy way to manage stress."
+        );
+
+        // ASK AGAIN WITHOUT REQUIRING A NEW THOUGHT
+        askGardenQuestion();
+
     }
+
 }
 
 
@@ -831,37 +1458,90 @@ function releaseThought() {
 
 function unityVault() {
 
-    drawRoomTitle("ROOM 5: THE UNITY VAULT");
+    drawRoomTitle("the unity vault.");
 
-    ctx.fillStyle = "#e9c9ff";
+    ctx.fillStyle = darkGreen;
+
     ctx.textAlign = "center";
 
-    // Vault Door
+    ctx.font = "italic 32px Cormorant Garamond";
+
+    ctx.fillText(
+        "We find our way forward together.",
+        w / 2,
+        150
+    );
+
+    // OUTER VAULT
+    ctx.fillStyle = lightGreen;
+
     ctx.beginPath();
-    ctx.arc(w/2, 370, 160, 0, Math.PI * 2);
+
+    ctx.arc(w / 2, 395, 165, 0, Math.PI * 2);
+
     ctx.fill();
 
-    ctx.fillStyle = "#5b348b";
+    ctx.strokeStyle = cream;
+
+    ctx.lineWidth = 8;
+
+    ctx.stroke();
+
+    // INNER VAULT
+    ctx.fillStyle = darkGreen;
 
     ctx.beginPath();
-    ctx.arc(w/2, 370, 125, 0, Math.PI * 2);
+
+    ctx.arc(w / 2, 395, 130, 0, Math.PI * 2);
+
     ctx.fill();
 
-    // Lock
-    ctx.fillStyle = "#ffd98a";
-    ctx.fillRect(w/2 - 30, 345, 60, 65);
+    // LOCK
+    ctx.fillStyle = cream;
 
-    ctx.font = "22px Arial";
-    ctx.fillStyle = "white";
+    ctx.fillRect(w / 2 - 30, 370, 60, 65);
 
-    ctx.fillText("Your Secret Word:", w/2, 180);
+    ctx.fillStyle = darkGreen;
 
-    ctx.font = "bold 35px Arial";
-    ctx.fillText(secretWords[playerNumber], w/2, 230);
+    ctx.beginPath();
 
-    ctx.font = "20px Arial";
-    ctx.fillText("Share your word with your group!", w/2, 585);
-    ctx.fillText("Work together to unlock the vault.", w/2, 625);
+    ctx.arc(w / 2, 397, 8, 0, Math.PI * 2);
+
+    ctx.fill();
+
+    // SECRET WORD
+    ctx.fillStyle = darkGreen;
+
+    ctx.font = "27px Georgia";
+
+    ctx.fillText(
+        "Your Secret Word:",
+        w / 2,
+        205
+    );
+
+    ctx.font = "500 48px Cormorant Garamond";
+
+    ctx.fillText(
+        secretWords[playerNumber],
+        w / 2,
+        255
+    );
+
+    ctx.font = "24px Georgia";
+
+    ctx.fillText(
+        "Share your word with your team.",
+        w / 2,
+        610
+    );
+
+    ctx.fillText(
+        "Work together to unlock the vault.",
+        w / 2,
+        650
+    );
+
 }
 
 
@@ -871,26 +1551,40 @@ function unityVault() {
 
 function checkVault() {
 
+    if (phase !== 7) {
+        return;
+    }
+
     var answer = document.getElementById("vaultAnswer").value;
 
     answer = answer.toUpperCase().trim();
 
-    var correctAnswer = "PAUSE BREATHE NOTICE RELEASE CONNECT";
+    // ALLOW EXTRA SPACES BETWEEN WORDS
+    answer = answer.replace(/\s+/g, " ");
+
+    var correctAnswer =
+        "PAUSE BREATHE NOTICE RELEASE CONNECT";
 
     if (answer === correctAnswer) {
 
-        score += 100;
+        score += game.pointsPerRoom;
+
+        game.finished = true;
 
         phase = 8;
 
-        document.getElementById("vaultControls").style.display = "none";
+        hideControls();
 
         console.log("Vault Unlocked!");
+
     }
 
     else {
+
         alert("Incorrect phrase! Work together and try again.");
+
     }
+
 }
 
 
@@ -900,73 +1594,97 @@ function checkVault() {
 
 function finishRoom() {
 
-    score += 100;
+    if (phase < 3 || phase > 6) {
+        return;
+    }
+
+    score += game.pointsPerRoom;
 
     phase++;
 
-    console.log("Room Completed!");
-    console.log("Total Score: " + score);
-
-    // Hide All Controls
-    document.getElementById("drawingControls").style.display = "none";
-    document.getElementById("gardenControls").style.display = "none";
-    document.getElementById("vaultControls").style.display = "none";
+    hideControls();
 
     if (phase === 4) {
+
         document.getElementById("drawingControls").style.display = "block";
+
     }
 
     else if (phase === 6) {
+
         document.getElementById("gardenControls").style.display = "block";
+
     }
 
     else if (phase === 7) {
+
         document.getElementById("vaultControls").style.display = "block";
+
     }
+
+    console.log("Room Completed!");
+
+    console.log("Total Score: " + score);
+
 }
 
 
 ///-----------------------------------------
-/// DRAW ROOM TITLE
-///-----------------------------------------
-
-function drawRoomTitle(title) {
-
-    ctx.fillStyle = "white";
-    ctx.textAlign = "center";
-    ctx.font = "bold 35px Arial";
-
-    ctx.fillText(title, w/2, 75);
-
-    ctx.font = "18px Arial";
-    ctx.fillText("Team: " + teamName + " | Score: " + score, w/2, 710);
-}
-
-
-///-----------------------------------------
-/// WIN SCREEN
+/// DRAW WIN SCREEN
 ///-----------------------------------------
 
 function drawWinScreen() {
 
-    drawBrainBuddy(w/2, 350, 1);
+    drawBrainBuddy(w / 2, 340, 1);
 
-    ctx.fillStyle = "#ffdf8a";
+    ctx.fillStyle = darkGreen;
+
     ctx.textAlign = "center";
 
-    ctx.font = "bold 55px Arial";
-    ctx.fillText("YOU ESCAPED!", w/2, 115);
+    ctx.font = "500 80px Cormorant Garamond";
 
-    ctx.fillStyle = "white";
-    ctx.font = "24px Arial";
+    ctx.fillText(
+        "you escaped.",
+        w / 2,
+        115
+    );
 
-    ctx.fillText("Congratulations " + playerName + "!", w/2, 175);
+    ctx.font = "italic 32px Cormorant Garamond";
 
-    ctx.fillText("Team: " + teamName, w/2, 560);
-    ctx.fillText("Final Score: " + score, w/2, 605);
+    ctx.fillText(
+        "a moment to pause. a space to grow.",
+        w / 2,
+        175
+    );
 
-    ctx.font = "18px monospace";
-    ctx.fillText("Click to Play Again", w/2, 680);
+    ctx.font = "26px Georgia";
+
+    ctx.fillText(
+        "Congratulations, " + playerName + "!",
+        w / 2,
+        555
+    );
+
+    ctx.fillText(
+        "Team: " + teamName,
+        w / 2,
+        595
+    );
+
+    ctx.fillText(
+        "Final Score: " + score,
+        w / 2,
+        635
+    );
+
+    ctx.font = "italic 28px Cormorant Garamond";
+
+    ctx.fillText(
+        "click to begin again",
+        w / 2,
+        685
+    );
+
 }
 
 
@@ -976,32 +1694,170 @@ function drawWinScreen() {
 
 function resetGame() {
 
-    phase = 1;
     score = 0;
 
-    breathTimer = 0;
-    breathCycles = 0;
-    brainSize = 1;
-    breathingFinished = false;
+    gameStarted = false;
 
-    bricksBroken = 0;
-    gardenFinished = false;
+    game.finished = false;
 
-    stars = [];
-    drawingStarted = false;
+    resetRoomVariables();
 
-    for (var i = 0; i < thoughts.length; i++) {
-        thoughts[i].broken = false;
-    }
+    phase = 1;
 
     document.getElementById("gameControls").style.display = "block";
 
-    document.getElementById("drawingControls").style.display = "none";
-    document.getElementById("gardenControls").style.display = "none";
-    document.getElementById("vaultControls").style.display = "none";
-
     console.log("Game Reset!");
+
 }
+
+
+///-----------------------------------------
+/// SET UP MOUSE CONTROLS
+///-----------------------------------------
+
+function setUpMouseControls() {
+
+    // CLICKING THE GAME CANVAS
+    canvas.onclick = function(e) {
+
+        var mouse = getMousePosition(e);
+
+        var x = mouse.x;
+        var y = mouse.y;
+
+        // TITLE SCREEN
+        if (phase === 1 && gameStarted === true) {
+
+            phase = 2;
+
+        }
+
+        // INSTRUCTIONS
+        else if (phase === 2) {
+
+            phase = 3;
+
+        }
+
+        // BREATHING CHAMBER
+        else if (phase === 3) {
+
+            if (breathingFinished === true) {
+                finishRoom();
+            }
+
+        }
+
+        // WEIGHT OF WORDS
+        else if (phase === 5) {
+
+            clickBrick(x, y);
+
+        }
+
+        // RELEASE GARDEN
+        else if (phase === 6) {
+
+            if (gardenFinished === true) {
+                finishRoom();
+            }
+
+        }
+
+        // WIN SCREEN
+        else if (phase === 8) {
+
+            resetGame();
+
+        }
+
+    };
+
+
+    // START DRAWING
+    canvas.onmousedown = function(e) {
+
+        if (phase === 4) {
+
+            drawing = false;
+
+            drawOnCanvas(e);
+
+            drawing = true;
+
+        }
+
+    };
+
+
+    // CONTINUE DRAWING
+    canvas.onmousemove = function(e) {
+
+        if (phase === 4 && drawing === true) {
+
+            drawOnCanvas(e);
+
+        }
+
+    };
+
+
+    // STOP DRAWING
+    canvas.onmouseup = function() {
+
+        drawing = false;
+
+    };
+
+
+    canvas.onmouseleave = function() {
+
+        drawing = false;
+
+    };
+
+}
+
+
+///-----------------------------------------
+/// RESIZE WATER BACKGROUND
+///-----------------------------------------
+
+window.onresize = function() {
+
+    setUpWaterCanvas();
+
+};
+
+
+///===========================================
+/// END OF JAVASCRIPT
+///===========================================
+
+// The game uses:
+// var variables
+// arrays
+// objects
+// functions
+// if / else if / else
+// for loops
+// canvas drawing
+// Math.sin()
+// Math.cos()
+// Math.random()
+// requestAnimationFrame()
+// mouse controls
+// HTML buttons
+// DOM methods
+
+// Each room is worth 100 points.
+// Maximum score = 500 points.
+
+// This version works in one browser.
+// Players share their final words verbally.
+// Real-time multiplayer would require a server.
+
+
 
 
 ///===========================================
