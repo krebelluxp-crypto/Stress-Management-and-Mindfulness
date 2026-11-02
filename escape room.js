@@ -1,122 +1,286 @@
-/* THE ESCAPE WITHIN — EASY-TO-EDIT GAME FUNCTIONS
-   Runs on GitHub Pages (no server required).
-   Players progress independently and collaborate verbally in the final vault.
-*/
+ // ===================================
+ // GLOBAL VARIABLES (TOP OF THE FILE)
+ // ===================================
 
-// SECTION 1: GAME SETTINGS AND STATE
-const ROOM_NAMES = ['Breathing Chamber','Emotion Gallery','Weight of Words','Release Garden','Grounding Observatory','Unity Vault'];
-const SECRET_WORDS = ['PAUSE','AND','BREATHE','NOTICE','YOUR','THOUGHTS','LET','THEM','PASS','WE','CONNECT','TOGETHER'];
-const FINAL_PHRASE = SECRET_WORDS.join(' ');
-const $ = id => document.getElementById(id);
-let game = { name:'',team:'',number:1,room:0,score:0 };
-let breathingTimer = null;
+ // GAME INFORMATION
+ var gameStarted = false;
+ var currentRoom = 0;
+ var points = 0;
+ var playerName = "";
+ var teamName = "";
 
-// SECTION 2: START, NAVIGATION, AND POINTS
-function startGame(){
-  const name = $('playerName').value.trim();
-  const number = Number($('playerNumber').value);
-  if(!name || !Number.isInteger(number) || number<1 || number>12){alert('Enter your name and a player number from 1 to 12.');return;}
-  game = {name,team:$('team').value,number,room:0,score:0};
-  $('setup').classList.add('hidden');$('game').classList.remove('hidden');
-  showRoom();
-}
-function showRoom(){
-  clearInterval(breathingTimer);
-  $('playerInfo').textContent=`${game.name} • Team ${game.team} • Player ${game.number}`;
-  $('score').textContent=`${game.score} points`;
-  $('progress').textContent=`${'✦ '.repeat(game.room)}${'◇ '.repeat(6-game.room)}  Room ${game.room+1} of 6`;
-  $('roomTitle').textContent=ROOM_NAMES[game.room];
-  $('feedback').textContent='';
-  [showBreathingRoom,showDrawingRoom,showWordsRoom,showGardenRoom,showGroundingRoom,showUnityVault][game.room]();
-}
-function finishRoom(){
-  game.score+=100;
-  game.room++;
-  if(game.room===6){$('game').classList.add('hidden');$('victory').classList.remove('hidden');return;}
-  showRoom();
-}
-function feedback(message){$('feedback').textContent=message;}
-function escapeHTML(text){return String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+ // ARRAYS - DIFFERENT ESCAPE ROOMS
+ var rooms = [
+     "Breathing Chamber",
+     "Emotion Gallery",
+     "Weight of Words",
+     "Release Garden",
+     "Unity Vault"
+ ];
 
-// SECTION 3: ROOM 1 — BREATHE WITH BRAIN BUDDY
-function showBreathingRoom(){
-  $('roomContent').innerHTML=`<p>Follow Brain Buddy: inhale gently for 4 seconds, then exhale for 4 seconds. Complete three cycles. Breathe naturally if this pace is uncomfortable.</p><img class="buddy" id="breathingBuddy" src="brain-buddy.png" alt="Brain Buddy breathing"><p class="center" id="breathPrompt">Ready to begin?</p><div class="center"><button id="breatheButton">Start guided breathing</button><button id="breathNext" disabled>Unlock door</button></div>`;
-  $('breatheButton').onclick=startBreathing;
-  $('breathNext').onclick=finishRoom;
-}
-function startBreathing(){
-  clearInterval(breathingTimer);
-  $('breatheButton').disabled=true;
-  $('breathingBuddy').classList.add('breathing');
-  let seconds=0;
-  $('breathPrompt').textContent='Breathe in • cycle 1 of 3';
-  breathingTimer=setInterval(()=>{
-    seconds++;
-    if(seconds>=24){clearInterval(breathingTimer);$('breathingBuddy').classList.remove('breathing');$('breathPrompt').textContent='Well done! You completed the guided exercise.';$('breathNext').disabled=false;return;}
-    $('breathPrompt').textContent=`${seconds%8<4?'Breathe in':'Breathe out'} • cycle ${Math.floor(seconds/8)+1} of 3`;
-  },1000);
-}
+ // OBJECT - GAME SETTINGS
+ var game = {
+     title: "The Escape Within",
+     pointsPerRoom: 100,
+     finished: false
+ };
 
-// SECTION 4: ROOM 2 — EMOTION DRAWING
-function showDrawingRoom(){
-  $('roomContent').innerHTML=`<p>Draw what calm, happiness, sadness, or frustration looks like to you. There is no wrong answer.</p><canvas class="draw" id="drawing" width="700" height="300" aria-label="Emotion drawing canvas"></canvas><button id="clearCanvas" class="secondary">Clear canvas</button><button id="drawingNext" disabled>Finish drawing</button>`;
-  const canvas=$('drawing'),ctx=canvas.getContext('2d');let drawing=false;
-  ctx.strokeStyle='#8d54be';ctx.lineWidth=5;ctx.lineCap='round';
-  const point=e=>{const r=canvas.getBoundingClientRect();return {x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height};};
-  canvas.onpointerdown=e=>{drawing=true;canvas.setPointerCapture(e.pointerId);const p=point(e);ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x+.1,p.y+.1);ctx.stroke();$('drawingNext').disabled=false;};
-  canvas.onpointermove=e=>{if(!drawing)return;const p=point(e);ctx.lineTo(p.x,p.y);ctx.stroke();};
-  canvas.onpointerup=canvas.onpointercancel=()=>drawing=false;
-  $('clearCanvas').onclick=()=>{ctx.clearRect(0,0,canvas.width,canvas.height);$('drawingNext').disabled=true;};
-  $('drawingNext').onclick=finishRoom;
-}
+ // ARRAY - NEGATIVE THOUGHTS
+ var negativeThoughts = [
+     "I'm not good enough",
+     "I'm going to fail",
+     "Everyone is judging me",
+     "I have to be perfect"
+ ];
 
-// SECTION 5: ROOM 3 — THE WEIGHT OF WORDS
-const THOUGHTS=['I always fail','Nobody likes me','I must be perfect','I am not good enough'];
-function showWordsRoom(){
-  $('roomContent').innerHTML=`<p>The doorway is blocked by heavy thoughts. Click each brick and choose a helpful way to relate to the thought. Thoughts are not always facts.</p><div class="brickWall" id="brickWall"></div><div id="brickQuestion"></div><button id="wordsNext" disabled>Open the doorway</button>`;
-  THOUGHTS.forEach((thought,index)=>{const b=document.createElement('button');b.className='brick';b.textContent='🧱 '+thought;b.onclick=()=>askAboutThought(index,b);$('brickWall').append(b);});
-  $('wordsNext').onclick=finishRoom;
-}
-function askAboutThought(index,brick){
-  $('brickQuestion').innerHTML=`<p><strong>How could you respond to “${escapeHTML(THOUGHTS[index])}”?</strong></p><button class="choice" id="goodThought">“I notice I'm having the thought that ${escapeHTML(THOUGHTS[index].toLowerCase())}.”</button><button class="choice" id="badThought">“This thought must be completely true.”</button>`;
-  $('goodThought').onclick=()=>{brick.classList.add('done');$('brickQuestion').innerHTML='<p>✨ The brick dissolves. You made room for a different perspective.</p>';if(document.querySelectorAll('.brick.done').length===THOUGHTS.length)$('wordsNext').disabled=false;};
-  $('badThought').onclick=()=>feedback('Try putting some distance between yourself and the thought.');
-}
+ // ARRAY - FINAL SECRET WORDS
+ var secretWords = [
+     "PAUSE",
+     "BREATHE",
+     "NOTICE",
+     "RELEASE",
+     "CONNECT"
+ ];
 
-// SECTION 6: ROOM 4 — THE RELEASE GARDEN
-function showGardenRoom(){
-  $('roomContent').innerHTML=`<p>In this peaceful garden, write a stressful thought or use an imaginary example. It stays on this device and is never sent anywhere.</p><div class="garden"><div id="skyWords">✨ ☁️ ✨</div><label for="releaseInput">A thought to release (optional)</label><input id="releaseInput" placeholder="For example: I have to get everything right"><button id="releaseButton">Release into the stars ✨</button></div><div id="gardenQuestion" class="hidden"><p><strong>Your friend is overwhelmed before a test. Which response is most supportive?</strong></p><button class="choice" id="gardenCorrect">“Let's pause, breathe, and take one small step.”</button><button class="choice" id="gardenWrong">“Just stop worrying.”</button></div>`;
-  $('releaseButton').onclick=releaseThought;
-}
-function releaseThought(){
-  const words=$('releaseInput').value.trim()||'A difficult thought';
-  $('skyWords').textContent=words;
-  $('skyWords').classList.remove('released');void $('skyWords').offsetWidth;$('skyWords').classList.add('released');
-  $('releaseInput').value='';$('releaseButton').disabled=true;
-  $('gardenQuestion').classList.remove('hidden');
-  $('gardenCorrect').onclick=finishRoom;
-  $('gardenWrong').onclick=()=>feedback('Try a response that validates the feeling and suggests a manageable step.');
-}
 
-// SECTION 7: ROOM 5 — GROUNDING OBSERVATORY
-function showGroundingRoom(){
-  $('roomContent').innerHTML=`<p>Take a look around you. The 5-4-3-2-1 technique helps bring attention to the present moment.</p><p><strong>Which sequence matches the grounding exercise?</strong></p><button class="choice" id="groundCorrect">5 things you see • 4 feel • 3 hear • 2 smell • 1 taste</button><button class="choice" id="groundWrong">5 worries • 4 fears • 3 regrets • 2 mistakes • 1 problem</button>`;
-  $('groundCorrect').onclick=finishRoom;
-  $('groundWrong').onclick=()=>feedback('Try focusing on your senses and what is happening around you.');
-}
+ // ===================================
+ // MAIN PROGRAM (MIDDLE OF THE FILE)
+ // ===================================
 
-// SECTION 8: ROOM 6 — UNITY VAULT (TEAM COLLABORATION)
-function showUnityVault(){
-  const word=SECRET_WORDS[game.number-1];
-  $('roomContent').innerHTML=`<p>You've reached the final door! Each participant has a different numbered clue. Read your word aloud on the group call, combine the clues in numerical order, and enter the full phrase.</p><div class="clue">Clue ${game.number}: ${word}</div><p class="small">The facilitator should assign numbers 1–12 to 12 participants. For smaller groups, the facilitator can distribute the remaining numbers so every word is available.</p><label>Complete phrase<input id="vaultAnswer" autocomplete="off" placeholder="Enter all the words in order"></label><button id="unlockVault">Unlock the Unity Vault</button>`;
-  $('unlockVault').onclick=checkVault;
-}
-function checkVault(){
-  const normalized=text=>text.toUpperCase().replace(/[^A-Z ]/g,'').replace(/\s+/g,' ').trim();
-  if(normalized($('vaultAnswer').value)===FINAL_PHRASE){finishRoom();}
-  else feedback('The vault is still locked. Ask everyone to share their numbered clue and check the order.');
-}
+ console.log("Welcome to The Escape Within!");
+ console.log("Stress Management and Mindfulness Escape Room");
+ console.log("There are " + rooms.length + " rooms to complete.");
 
-// SECTION 9: BUTTON EVENTS
-$('startButton').addEventListener('click',startGame);
-$('restartButton').addEventListener('click',()=>location.reload());
+ // Start the game by calling startGame()
+ // This will be connected to a button later.
+
+
+ // ===================================
+ // FUNCTION SECTION
+ // ===================================
+
+
+ // ===================================
+ // FUNCTION 1: START GAME
+ // ===================================
+
+ function startGame() {
+
+     gameStarted = true;
+     currentRoom = 0;
+     points = 0;
+     game.finished = false;
+
+     console.log("Game Started!");
+
+     showRoom();
+ }
+
+
+ // ===================================
+ // FUNCTION 2: SHOW CURRENT ROOM
+ // ===================================
+
+ function showRoom() {
+
+     if (gameStarted === true) {
+
+         console.log("Current Room: " + rooms[currentRoom]);
+
+         if (currentRoom === 0) {
+             breathingChamber();
+         }
+
+         else if (currentRoom === 1) {
+             emotionGallery();
+         }
+
+         else if (currentRoom === 2) {
+             weightOfWords();
+         }
+
+         else if (currentRoom === 3) {
+             releaseGarden();
+         }
+
+         else if (currentRoom === 4) {
+             unityVault();
+         }
+
+     }
+
+ }
+
+
+ // ===================================
+ // FUNCTION 3: BREATHING CHAMBER
+ // ===================================
+
+ function breathingChamber() {
+
+     console.log("Welcome to the Breathing Chamber!");
+     console.log("Breathe with Brain Buddy.");
+
+     // TO ADD LATER:
+     // Draw Brain Buddy using canvas.
+     // Make Brain Buddy bigger when breathing in.
+     // Make Brain Buddy smaller when breathing out.
+     // Repeat breathing cycles.
+     // Unlock the next room.
+
+ }
+
+
+ // ===================================
+ // FUNCTION 4: EMOTION GALLERY
+ // ===================================
+
+ function emotionGallery() {
+
+     console.log("Welcome to the Emotion Gallery!");
+     console.log("Draw what your emotions look like.");
+
+     // TO ADD LATER:
+     // Create a drawing canvas.
+     // Allow participants to choose colours.
+     // Give participants an emotion prompt.
+     // Allow participants to draw.
+     // Unlock the next room.
+
+ }
+
+
+ // ===================================
+ // FUNCTION 5: WEIGHT OF WORDS
+ // ===================================
+
+ function weightOfWords() {
+
+     console.log("Welcome to the Weight of Words!");
+     console.log("Break the wall of negative thoughts.");
+
+     // LOOP THROUGH NEGATIVE THOUGHTS
+     for (var i = 0; i < negativeThoughts.length; i++) {
+
+         console.log("Brick " + (i + 1) + ": " + negativeThoughts[i]);
+
+     }
+
+     // TO ADD LATER:
+     // Draw a wall using rectangles.
+     // Put negative thoughts on each brick.
+     // Click a brick to answer a question.
+     // Break the brick when answered correctly.
+     // Unlock the door when all bricks are gone.
+
+ }
+
+
+ // ===================================
+ // FUNCTION 6: RELEASE GARDEN
+ // ===================================
+
+ function releaseGarden() {
+
+     console.log("Welcome to the Release Garden!");
+     console.log("Let go of a stressful thought.");
+
+     // TO ADD LATER:
+     // Draw a garden using canvas.
+     // Add flowers, trees, and stars.
+     // Create a text box for stressful thoughts.
+     // Make the words disappear when released.
+     // Ask a mindfulness question.
+     // Unlock the next room.
+
+ }
+
+
+ // ===================================
+ // FUNCTION 7: UNITY VAULT
+ // ===================================
+
+ function unityVault() {
+
+     console.log("Welcome to the Unity Vault!");
+     console.log("Work together to find the final phrase.");
+
+     // SHOW THE SECRET WORDS FOR TESTING
+     for (var i = 0; i < secretWords.length; i++) {
+
+         console.log("Word " + (i + 1) + ": " + secretWords[i]);
+
+     }
+
+     // TO ADD LATER:
+     // Give each participant one secret word.
+     // Participants share their words with the group.
+     // Everyone works together to find the phrase.
+     // Enter the correct phrase to unlock the vault.
+
+ }
+
+
+ // ===================================
+ // FUNCTION 8: FINISH ROOM
+ // ===================================
+
+ function finishRoom() {
+     if (gameStarted === true && currentRoom < rooms.length - 1) {
+         points += game.pointsPerRoom;
+         console.log("Room Completed!");
+         console.log("Total Points: " + points);
+         currentRoom++;
+         showRoom();
+     }
+     else if (currentRoom === rooms.length - 1) {
+         console.log("Complete the Unity Vault to escape!");
+     }
+ }
+
+
+ // ===================================
+ // FUNCTION 9: CHECK FINAL ANSWER
+ // ===================================
+
+ function checkVault(answer) {
+     var correctAnswer = "PAUSE BREATHE NOTICE RELEASE CONNECT";
+     if (currentRoom === 4 && answer === correctAnswer) {
+         points += game.pointsPerRoom;
+         endGame();
+     }
+     else {
+         console.log("Incorrect Code! Try Again.");
+     }
+ }
+
+
+ // ===================================
+ // FUNCTION 10: END GAME
+ // ===================================
+
+ function endGame() {
+
+     game.finished = true;
+     gameStarted = false;
+
+     console.log("Congratulations!");
+     console.log("You Escaped The Escape Within!");
+     console.log("Final Score: " + points);
+ }
+
+
+ // ===================================
+ // NOTES - THINGS TO ADD LATER
+ // ===================================
+
+ // 1. Set up canvas for the graphics.
+ // 2. Draw Brain Buddy.
+ // 3. Add breathing animations.
+ // 4. Create a drawing canvas.
+ // 5. Create interactive bricks.
+ // 6. Draw the Release Garden.
+ // 7. Add clickable buttons.
+ // 8. Add team names and scores.
+ // 9. Add individual secret words.
+ // 10. Add the final escape animation.
