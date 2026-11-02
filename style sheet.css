@@ -1,13 +1,58 @@
-///// SECTION 1: THEME /////
-:root{--bg:#12132b;--panel:#242344;--text:#f8f5ff;--muted:#d4cce9;--pink:#f7a8df;--teal:#8fe5d0;--gold:#ffe4a3}
-*{box-sizing:border-box}body{margin:0;font:16px/1.6 system-ui,Arial,sans-serif;color:var(--text);background:radial-gradient(ellipse at 15% 10%,#433366,transparent 48%),radial-gradient(ellipse at 85% 60%,#254c62,transparent 48%),var(--bg);min-height:100vh}header,main,footer{max-width:960px;margin:auto;padding:20px}header{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--teal)}footer{text-align:center;color:var(--muted);font-size:14px}
 
-///// SECTION 2: LAYOUT /////
-.hero{display:flex;align-items:center;gap:30px;margin:18px 0 28px}.hero img{width:205px;max-width:36%;filter:drop-shadow(0 10px 35px #ec9bea80)}h1{font-size:clamp(32px,5vw,58px);line-height:1.12;margin:8px 0}h1 em{color:var(--pink)}.eyebrow{letter-spacing:2px;color:var(--teal);font-size:12px}.card{background:#242344e8;border:1px solid #bda8e744;border-radius:24px;padding:26px;margin-bottom:20px;box-shadow:0 16px 48px #09081866}.hidden{display:none!important}.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}.status{display:flex;justify-content:space-between;gap:15px;color:var(--teal)}.progress{margin:12px 0;color:var(--gold)}.note{font-size:13px;color:var(--muted)}
+body {
+    margin: auto;
+    width: 95%;
+    text-align: center;
+    background: #160d30;
+    color: white;
+    font-family: Arial;
+}
 
-/////SECTION 3: CONTROLS////
-label{display:block;color:var(--muted);font-weight:600}input,select,textarea{display:block;width:100%;padding:12px;margin:6px 0 12px;background:#15172d;color:white;border:1px solid #8f83b1;border-radius:10px;font:inherit}button{background:linear-gradient(110deg,var(--pink),#c5a8ff);color:#201831;border:0;border-radius:12px;padding:12px 20px;margin:8px 8px 8px 0;font:inherit;font-weight:750;cursor:pointer}button:hover{filter:brightness(1.12)}button:disabled{opacity:.45;cursor:not-allowed}.secondary{background:#426f72;color:white}.choice{display:block;width:100%;text-align:left;background:#343558;color:white;border:1px solid #79769f}.choice:hover{background:#4b4b79}#feedback{color:var(--gold);min-height:25px}
+h1 {
+    color: #e5baff;
+    text-align: center;
+}
 
-///// SECTION 4: ROOMS AND ANIMATIONS /////
-.buddy{display:block;width:155px;max-width:50%;margin:18px auto;filter:drop-shadow(0 8px 22px #c9a8ff66)}.buddy.breathing{animation:breathe 8s ease-in-out infinite}@keyframes breathe{0%,100%{transform:scale(.9)}50%{transform:scale(1.16)}}.center{text-align:center}.draw{display:block;width:100%;height:250px;touch-action:none;background:#fffdf8;border:4px solid #d3baf8;border-radius:15px}.brick{background:#64527d;border:2px solid #9c8ab8;color:white;min-width:170px}.brick.done{opacity:.25;transform:translateY(15px);pointer-events:none}.brickWall{display:flex;flex-wrap:wrap;gap:9px}.garden{position:relative;background:linear-gradient(#283a70,#6873a4 55%,#2d7056 55%);min-height:220px;border-radius:18px;padding:20px;overflow:hidden;text-align:center}.garden:after{content:'🌳 🌷 🌼 🌿 🌸 🌲 🌷 🌻';display:block;font-size:30px;margin-top:30px}.released{animation:release 2s forwards;color:#fff3bb;font-size:24px}@keyframes release{to{transform:translateY(-80px);opacity:0;filter:blur(9px)}}.clue{font-size:28px;color:var(--gold);font-weight:800;letter-spacing:2px;text-align:center;border:2px dashed #a8d9ce;border-radius:16px;padding:18px}.small{font-size:13px;color:var(--muted)}
-@media(max-width:600px){.hero{flex-direction:column;text-align:center}.hero img{max-width:50%;width:145px}.card{padding:18px}}
+p {
+    color: #d9c9ef;
+}
+
+canvas {
+    width: 100%;
+    max-width: 1000px;
+    height: auto;
+    border: 3px solid #9b73d9;
+    border-radius: 15px;
+    background: #24143d;
+    cursor: pointer;
+}
+
+button {
+    background: #a77ce5;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+    margin: 8px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background: #8052c5;
+}
+
+input, select {
+    padding: 12px;
+    margin: 8px;
+    border-radius: 8px;
+    border: 2px solid #a77ce5;
+    font-size: 15px;
+}
+
+#gameControls,
+#drawingControls,
+#gardenControls,
+#vaultControls {
+    padding: 15px;
+}
