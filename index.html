@@ -7,56 +7,167 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>The Escape Within</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="a4.css">
 </head>
 
 <body>
 
-    <h1>THE ESCAPE WITHIN</h1>
-    <p>Stress Management and Mindfulness Escape Room</p>
+    
+<!-- =================================== -->
+<!-- WELCOME PAGE -->
+<!-- =================================== -->
 
-    <canvas id="MyCanvas"></canvas>
+<div id="welcomePage">
 
-    <div id="gameControls">
+    <canvas id="waterCanvas"></canvas>
 
-        <input id="playerName" placeholder="Enter Your Name">
-        <input id="teamName" placeholder="Enter Team Name">
+    <div id="welcomeContent">
 
-        <select id="playerNumber">
-            <option value="0">Player 1</option>
-            <option value="1">Player 2</option>
-            <option value="2">Player 3</option>
-            <option value="3">Player 4</option>
-            <option value="4">Player 5</option>
-        </select>
+        <!-- MAIN TITLE -->
+        <h1>
+            the escape
+            <br>
+            <em>within.</em>
+        </h1>
 
-        <button onclick="startGame()">Start Game</button>
+        <!-- QUOTE -->
+        <p class="welcomeQuote">
+            inhale. exhale. begin again.
+        </p>
+
+        <!-- WELCOME BOX -->
+        <div class="welcomeBox">
+
+            <h2>
+                Welcome to your
+                <br>
+                mindfulness retreat.
+            </h2>
+
+            <p class="introText">
+                Take a moment to slow down, breathe,
+                and reconnect with yourself.
+            </p>
+
+            <p>
+                In this interactive escape room, you will explore
+                five different challenges that teach you simple
+                ways to manage stress and understand your emotions.
+            </p>
+
+            <!-- FIVE ACTIVITIES -->
+            <div class="activityList">
+
+                <div class="activity">
+                    <div class="activityIcon">♧</div>
+                    <p>BREATHING</p>
+                </div>
+
+                <div class="activity">
+                    <div class="activityIcon">✎</div>
+                    <p>EXPRESS<br>EMOTIONS</p>
+                </div>
+
+                <div class="activity">
+                    <div class="activityIcon">✧</div>
+                    <p>CHALLENGE<br>THOUGHTS</p>
+                </div>
+
+                <div class="activity">
+                    <div class="activityIcon">❀</div>
+                    <p>RELEASE<br>STRESS</p>
+                </div>
+
+                <div class="activity">
+                    <div class="activityIcon">♡</div>
+                    <p>WORK<br>TOGETHER</p>
+                </div>
+
+            </div>
+
+            <p>
+                Each completed challenge brings you closer
+                to unlocking the final room.
+            </p>
+
+            <p>
+                At the end, you will work together with your
+                team to solve the final puzzle.
+            </p>
+
+            <p class="reminder">
+                There is no need to rush. This experience
+                is about learning, not being perfect.
+            </p>
+
+            <button onclick="enterGame()">
+                BEGIN YOUR JOURNEY →
+            </button>
+
+        </div>
 
     </div>
 
-    <div id="drawingControls" style="display:none">
-        <p>Choose a colour and draw your emotion!</p>
+</div>
 
-        <input type="color" id="drawColor" value="#ff88cc">
 
-        <button onclick="clearDrawing()">Clear Drawing</button>
-        <button onclick="finishDrawing()">Finish Drawing</button>
-    </div>
 
-    <div id="gardenControls" style="display:none">
-        <p>Write a thought you would like to release.</p>
+    <!-- ORIGINAL GAME -->
+    <div id="gamePage" style="display:none">
 
-        <input id="stressThought" placeholder="Your thought stays private">
+        <h1 class="gameTitle">The Escape Within</h1>
 
-        <button onclick="releaseThought()">Release Into the Sky</button>
-    </div>
+        <canvas id="MyCanvas"></canvas>
 
-    <div id="vaultControls" style="display:none">
-        <p>Work together to find the secret phrase!</p>
+        <div id="gameControls">
 
-        <input id="vaultAnswer" placeholder="Enter the final phrase">
+            <input id="playerName" placeholder="Enter Your Name">
 
-        <button onclick="checkVault()">Unlock Vault</button>
+            <input id="teamName" placeholder="Enter Team Name">
+
+            <select id="playerNumber">
+                <option value="0">Player 1</option>
+                <option value="1">Player 2</option>
+                <option value="2">Player 3</option>
+                <option value="3">Player 4</option>
+                <option value="4">Player 5</option>
+            </select>
+
+            <button onclick="startGame()">Start Game</button>
+
+        </div>
+
+        <div id="drawingControls" style="display:none">
+            <p>Choose a colour and draw your emotion!</p>
+
+            <input type="color" id="drawColor" value="#ff88cc">
+
+            <button onclick="clearDrawing()">Clear Drawing</button>
+            <button onclick="finishDrawing()">Finish Drawing</button>
+        </div>
+
+        <div id="gardenControls" style="display:none">
+            <p>Write a thought you would like to release.</p>
+
+            <input id="stressThought" placeholder="Your thought stays private">
+
+            <button onclick="releaseThought()">Release Into the Sky</button>
+        </div>
+
+        <div id="vaultControls" style="display:none">
+            <p>Work together to find the secret phrase!</p>
+
+            <input id="vaultAnswer" placeholder="Enter the final phrase">
+
+            <button onclick="checkVault()">Unlock Vault</button>
+        </div>
+
     </div>
 
     <script src="escapeRoom.js"></script>
