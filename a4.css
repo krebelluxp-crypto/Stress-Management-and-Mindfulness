@@ -1,58 +1,433 @@
 
+/* ===================================
+   GENERAL PAGE
+   =================================== */
+
 body {
-    margin: auto;
-    width: 95%;
+    margin: 0;
     text-align: center;
-    background: #160d30;
-    color: white;
     font-family: Arial;
+    background: #234c35;
 }
 
-h1 {
-    color: #e5baff;
+
+
+/* ===================================
+   WELCOME PAGE
+   =================================== */
+
+#welcomePage {
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+
+    background: linear-gradient(
+        160deg,
+        #dce6d5 0%,
+        #b5cbb1 25%,
+        #789c79 55%,
+        #416f50 80%,
+        #234c35 100%
+    );
+}
+
+
+/* ===================================
+   WATER RIPPLE BACKGROUND
+   =================================== */
+
+#waterCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    pointer-events: none;
+
+    /* Make the water ripples more visible */
+    opacity: 0.95;
+
+    z-index: 1;
+}
+
+/* Keep the text above the water */
+#welcomeContent {
+    position: relative;
+    z-index: 2;
+}
+
+
+
+/* ===================================
+   WELCOME CONTENT
+   =================================== */
+
+#welcomeContent {
+    position: relative;
+    z-index: 2;
+
+    max-width: 1100px;
+    margin: auto;
+
+    padding: 40px 25px 90px;
+    color: #234c35;
+}
+
+
+/* ===================================
+   MAIN TITLE
+   =================================== */
+
+#welcomeContent h1 {
+    font-family: "Cormorant Garamond", Georgia, serif;
+
+    font-size: clamp(85px, 13vw, 170px);
+    font-weight: 400;
+
+    line-height: 0.75;
+    letter-spacing: -6px;
+
+    margin: 20px 0 40px;
+    color: #123f29;
+}
+
+#welcomeContent h1 em {
+    font-weight: 400;
+}
+
+
+/* ===================================
+   QUOTE
+   =================================== */
+
+.welcomeQuote {
+    font-family: "Cormorant Garamond", Georgia, serif;
+
+    font-size: 40px;
+    font-style: italic;
+
+    margin: 55px 0 45px;
+    color: #234c35;
+}
+
+
+/* ===================================
+   WELCOME BOX
+   =================================== */
+
+.welcomeBox {
+    max-width: 950px;
+    margin: auto;
+
+    padding: 45px 55px;
+
+    background: rgba(234, 242, 226, 0.5);
+
+    border: 2px solid rgba(255, 255, 255, 0.75);
+    border-radius: 40px;
+
+    backdrop-filter: blur(12px);
+
+    box-shadow: 0 15px 50px rgba(25, 65, 40, 0.12);
+}
+
+
+/* ===================================
+   WELCOME HEADING
+   =================================== */
+
+.welcomeBox h2 {
+    font-family: "Cormorant Garamond", Georgia, serif;
+
+    font-size: 65px;
+    font-weight: 500;
+    line-height: 0.95;
+
+    margin: 0 0 35px;
+    color: #123f29;
+}
+
+
+/* ===================================
+   DESCRIPTION
+   =================================== */
+
+.welcomeBox p {
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+    line-height: 1.8;
+
+    color: #234c35;
+    margin: 25px 0;
+}
+
+.welcomeBox .introText {
+    font-size: 20px;
+}
+
+
+/* ===================================
+   ACTIVITY LIST
+   =================================== */
+
+.activityList {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    gap: 15px;
+    margin: 45px 0;
+}
+
+.activity {
+    flex: 1;
     text-align: center;
 }
 
-p {
-    color: #d9c9ef;
+.activityIcon {
+    width: 75px;
+    height: 75px;
+
+    margin: auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(120, 156, 121, 0.2);
+    border-radius: 50%;
+
+    font-size: 38px;
+    color: #234c35;
 }
 
-canvas {
+.activity p {
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    line-height: 1.5;
+
+    margin-top: 15px;
+}
+
+
+/* ===================================
+   REMINDER
+   =================================== */
+
+.welcomeBox .reminder {
+    font-style: italic;
+
+    padding: 15px;
+    margin-top: 35px;
+
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 30px;
+}
+
+
+/* ===================================
+   BEGIN BUTTON
+   =================================== */
+
+.welcomeBox button {
+    background: linear-gradient(
+        180deg,
+        #416f50,
+        #123f29
+    );
+
+    color: #f2f0df;
+
+    border: 2px solid white;
+    border-radius: 50px;
+
+    padding: 18px 65px;
+    margin-top: 20px;
+
+    font-family: Arial, sans-serif;
+    font-size: 19px;
+    letter-spacing: 4px;
+
+    cursor: pointer;
+
+    transition: 0.3s;
+}
+
+.welcomeBox button:hover {
+    background: #234c35;
+    transform: translateY(-3px);
+}
+
+
+/* ===================================
+   MOBILE SCREEN
+   =================================== */
+
+@media (max-width: 700px) {
+
+    #welcomeContent h1 {
+        font-size: 75px;
+        letter-spacing: -3px;
+    }
+
+    .welcomeQuote {
+        font-size: 27px;
+    }
+
+    .welcomeBox {
+        padding: 35px 20px;
+        border-radius: 25px;
+    }
+
+    .welcomeBox h2 {
+        font-size: 43px;
+    }
+
+    .welcomeBox p {
+        font-size: 15px;
+    }
+
+    .activityList {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .activity {
+        flex: 0 0 28%;
+    }
+
+    .activityIcon {
+        width: 55px;
+        height: 55px;
+        font-size: 28px;
+    }
+
+    .welcomeBox button {
+        padding: 15px 25px;
+        font-size: 14px;
+        letter-spacing: 2px;
+    }
+}
+
+
+/* ===================================
+   GAME PAGE
+   =================================== */
+
+#gamePage {
+    min-height: 100vh;
+    padding: 35px 15px;
+    box-sizing: border-box;
+
+    color: #234c35;
+
+    background: linear-gradient(
+        160deg,
+        #dce6d5 0%,
+        #b5cbb1 25%,
+        #789c79 55%,
+        #416f50 80%,
+        #234c35 100%
+    );
+}
+
+.gameTitle {
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 65px;
+    font-weight: 400;
+    color: #234c35;
+    margin: 10px 0 25px;
+}
+
+#MyCanvas {
     width: 100%;
     max-width: 1000px;
     height: auto;
-    border: 3px solid #9b73d9;
-    border-radius: 15px;
-    background: #24143d;
+
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 20px;
+
+    background: #b5cbb1;
+
+    box-shadow: 0 15px 50px rgba(20, 55, 35, 0.2);
+}
+
+#gamePage button {
+    background: #234c35;
+    color: #f2f0df;
+
+    border: 1px solid #416f50;
+    border-radius: 40px;
+
+    padding: 13px 28px;
+    margin: 8px;
+
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 25px;
+
     cursor: pointer;
 }
 
-button {
-    background: #a77ce5;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    padding: 12px 20px;
+#gamePage button:hover {
+    background: #416f50;
+}
+
+#gamePage input,
+#gamePage select {
+    padding: 12px 15px;
     margin: 8px;
-    cursor: pointer;
+
+    border: 1px solid #789c79;
+    border-radius: 10px;
+
+    background: #f2f0df;
+    color: #234c35;
+
+    font-family: Georgia, serif;
     font-size: 16px;
 }
 
-button:hover {
-    background: #8052c5;
-}
-
-input, select {
-    padding: 12px;
-    margin: 8px;
-    border-radius: 8px;
-    border: 2px solid #a77ce5;
-    font-size: 15px;
+#gamePage p {
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 26px;
+    color: #234c35;
 }
 
 #gameControls,
 #drawingControls,
 #gardenControls,
 #vaultControls {
-    padding: 15px;
+    padding: 20px;
+}
+
+
+/* ===================================
+   SMALLER SCREENS
+   =================================== */
+
+@media (max-width: 600px) {
+
+    #welcomeContent {
+        padding-top: 80px;
+    }
+
+    #welcomeContent h1 {
+        letter-spacing: -2px;
+    }
+
+    .welcomeQuote {
+        font-size: 27px;
+        margin-bottom: 50px;
+    }
+
+    .welcomeDescription {
+        padding: 25px 20px;
+    }
+
+    .welcomeDescription h2 {
+        font-size: 32px;
+    }
 }
