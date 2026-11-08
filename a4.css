@@ -431,3 +431,70 @@ body {
         font-size: 32px;
     }
 }
+
+
+/* ===================================
+   PLAYER INFORMATION
+   =================================== */
+
+#gameControls {
+    margin-top: 35px;
+    padding: 25px;
+    text-align: center;
+}
+
+#gameControls h3 {
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 40px;
+    font-weight: 500;
+    color: #234c35;
+    margin-bottom: 10px;
+}
+
+#gameControls p {
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    color: #234c35;
+}
+
+#gameControls input,
+#gameControls select {
+    display: block;
+    width: 85%;
+    max-width: 420px;
+
+    padding: 15px;
+    margin: 15px auto;
+
+    border: 1px solid #789c79;
+    border-radius: 12px;
+
+    background: #f2f0df;
+    color: #234c35;
+
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+
+    box-sizing: border-box;
+}
+
+#gameControls button {
+    background: #234c35;
+    color: #f2f0df;
+
+    border: 2px solid white;
+    border-radius: 50px;
+
+    padding: 18px 50px;
+    margin-top: 25px;
+
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    letter-spacing: 3px;
+
+    cursor: pointer;
+}
+
+#gameControls button:hover {
+    background: #416f50;
+}
