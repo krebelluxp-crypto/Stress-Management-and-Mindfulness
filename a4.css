@@ -25,9 +25,9 @@ body {
         160deg,
         #dce6d5 0%,
         #b5cbb1 25%,
-        #789c79 55%,
-        #416f50 80%,
-        #234c35 100%
+        #78869c 55%,
+        #415c6f 80%,
+        #23384c 100%
     );
 }
 
@@ -52,12 +52,6 @@ body {
     z-index: 1;
 }
 
-/* Keep the text above the water */
-#welcomeContent {
-    position: relative;
-    z-index: 2;
-}
-
 
 
 /* ===================================
@@ -80,21 +74,25 @@ body {
    MAIN TITLE
    =================================== */
 
-#welcomeContent h1 {
+/* The one title look used on EVERY page */
+.mainTitle {
     font-family: "Cormorant Garamond", Georgia, serif;
-
-    font-size: clamp(85px, 13vw, 170px);
     font-weight: 400;
 
     line-height: 0.75;
     letter-spacing: -6px;
 
-    margin: 20px 0 40px;
     color: #123f29;
 }
 
-#welcomeContent h1 em {
+.mainTitle em {
     font-weight: 400;
+}
+
+/* Welcome page: size and spacing only */
+#welcomeContent h1 {
+    font-size: clamp(85px, 13vw, 170px);
+    margin: 20px 0 40px;
 }
 
 
@@ -328,18 +326,17 @@ body {
         160deg,
         #dce6d5 0%,
         #b5cbb1 25%,
-        #789c79 55%,
-        #416f50 80%,
+        #7b95aa 55%,
+        #4b4574 80%,
         #234c35 100%
     );
 }
 
+/* Room title: same look, smaller so the room fits on screen */
 .gameTitle {
-    font-family: "Cormorant Garamond", Georgia, serif;
-    font-size: 65px;
-    font-weight: 400;
-    color: #234c35;
-    margin: 10px 0 25px;
+    font-size: clamp(50px, 6vw, 75px);
+    letter-spacing: -3px;
+    margin: 5px 0 18px;
 }
 
 #MyCanvas {
@@ -422,14 +419,6 @@ body {
         font-size: 27px;
         margin-bottom: 50px;
     }
-
-    .welcomeDescription {
-        padding: 25px 20px;
-    }
-
-    .welcomeDescription h2 {
-        font-size: 32px;
-    }
 }
 
 
@@ -437,43 +426,67 @@ body {
    PLAYER INFORMATION
    =================================== */
 
+/* Whole details page: centres the title and card on the screen */
 #gameControls {
-    margin-top: 35px;
-    padding: 25px;
+    min-height: calc(100vh - 70px);
+    padding: 0;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
     text-align: center;
 }
 
-#gameControls h3 {
-    font-family: "Cormorant Garamond", Georgia, serif;
-    font-size: 40px;
-    font-weight: 500;
-    color: #234c35;
-    margin-bottom: 10px;
+/* Details page title: size and spacing only */
+#detailsTitle {
+    font-size: clamp(70px, 10vw, 130px);
+    letter-spacing: -5px;
+    margin: 0 0 45px;
+}
+
+/* The frosted card holding the inputs */
+.detailsCard {
+    width: 100%;
+    max-width: 720px;
+    padding: 60px 60px;
+    box-sizing: border-box;
+
+    background: rgba(234, 242, 226, 0.5);
+
+    border: 2px solid rgba(255, 255, 255, 0.75);
+    border-radius: 40px;
+
+    backdrop-filter: blur(12px);
+
+    box-shadow: 0 15px 50px rgba(25, 65, 40, 0.12);
 }
 
 #gameControls p {
     font-family: Arial, sans-serif;
-    font-size: 16px;
+    font-size: 18px;
     color: #234c35;
+    margin: 0 0 25px;
 }
 
 #gameControls input,
 #gameControls select {
     display: block;
-    width: 85%;
-    max-width: 420px;
+    width: 100%;
 
-    padding: 15px;
-    margin: 15px auto;
+    padding: 22px 24px;
+    margin: 0 auto 22px;
 
     border: 1px solid #789c79;
-    border-radius: 12px;
+    border-radius: 16px;
 
     background: #f2f0df;
     color: #234c35;
 
     font-family: Arial, sans-serif;
-    font-size: 16px;
+    font-size: 21px;
 
     box-sizing: border-box;
 }
@@ -485,11 +498,11 @@ body {
     border: 2px solid white;
     border-radius: 50px;
 
-    padding: 18px 50px;
-    margin-top: 25px;
+    padding: 22px 80px;
+    margin-top: 18px;
 
     font-family: Arial, sans-serif;
-    font-size: 16px;
+    font-size: 20px;
     letter-spacing: 3px;
 
     cursor: pointer;
@@ -497,4 +510,122 @@ body {
 
 #gameControls button:hover {
     background: #416f50;
+}
+
+/* Message shown when name or team name is missing */
+#gameControls #detailsMessage {
+    min-height: 24px;
+    margin: 0 0 5px;
+
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+    color: #9b3d3d;
+}
+
+/* Red outline on the box that still needs filling in */
+#gameControls input.inputError {
+    border: 2px solid #b0524f;
+}
+
+
+/* ===================================
+   ROOM 4: RELEASE GARDEN WRITING BOX
+   =================================== */
+
+#gardenControls {
+    text-align: center;
+}
+
+#gardenControls textarea {
+    display: block;
+
+    width: 85%;
+    max-width: 700px;
+    min-height: 160px;
+
+    margin: 20px auto;
+    padding: 20px;
+
+    box-sizing: border-box;
+
+    background: #f2f0df;
+    color: #29234c;
+
+    border: 2px solid #789c79;
+    border-radius: 18px;
+
+    font-family: Georgia, serif;
+    font-size: 20px;
+    line-height: 1.6;
+
+    resize: vertical;
+    outline: none;
+}
+
+#gardenControls textarea:focus {
+    border-color: #414c6f;
+
+    box-shadow: 0 0 12px rgba(65, 76, 111, 0.25);
+}
+
+#gardenControls textarea::placeholder {
+    color: #78809c;
+    font-style: italic;
+}
+
+
+/* ===================================
+   FINAL WIN SCREEN REFLECTION
+   =================================== */
+
+#winReflection {
+    max-width: 850px;
+    margin: 25px auto 50px;
+    padding: 35px 45px;
+
+    background: rgba(234, 242, 226, 0.5);
+
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    border-radius: 25px;
+
+    box-shadow: 0 15px 50px rgba(25, 65, 40, 0.12);
+
+    color: #29234c;
+    text-align: center;
+}
+
+#winReflection h2 {
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 45px;
+    font-weight: 500;
+    margin: 0 0 20px;
+}
+
+#gamePage #winReflection p {
+    font-family: Georgia, serif;
+    font-size: 19px;
+    line-height: 1.8;
+    color: #29234c;
+    margin: 18px 0;
+}
+
+#gamePage #winReflection .finalReflection {
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 30px;
+    font-style: italic;
+    margin-top: 25px;
+}
+
+#winReflection strong {
+    font-weight: 600;
+}
+
+@media (max-width: 600px) {
+    #winReflection {
+        padding: 25px 20px;
+    }
+
+    #winReflection h2 {
+        font-size: 35px;
+    }
 }

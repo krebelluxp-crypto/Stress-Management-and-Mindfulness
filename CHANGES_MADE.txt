@@ -1,0 +1,221 @@
+=====================================================================
+ THE ESCAPE WITHIN - CHANGES MADE
+ Summary as of 2026-11-08
+=====================================================================
+
+ This is the short, easy-to-follow version. Full detail (every line
+ edited, old -> new values, test results) is in PROPOSED_CHANGES.txt.
+ Ready-to-paste code is in codes.txt.
+
+   "Issue #"   = numbered problem in PROPOSED_CHANGES.txt, Section 1
+   "Log [#]"   = numbered entry in PROPOSED_CHANGES.txt, Section 3
+                 (the change log)
+
+ Contents
+   PART 1  Where we started      - the problems found in the code
+   PART 2  What was done         - each problem and how it was closed
+   PART 3  Changes To Make list  - the list from the bottom of
+                                   escapeRoom.js, marked up
+   PART 4  What is left          - everything still open, in one place
+
+
+=====================================================================
+ PART 1 - WHERE WE STARTED
+=====================================================================
+
+ The first review of escapeRoom.js, index.html and a4.css found
+ 17 issues:
+
+   #1   The vault could never be unlocked. The game couldn't be won.
+   #2   "Begin Your Journey" skipped the player details form. Everyone
+        was "Player" / "Team Mindful" / Player 1, so everyone got the
+        same secret word.
+   #3   The details form stayed on screen during the whole game.
+   #4   Typing a space in the name box skipped a breathing cycle.
+   #5   The Room 2 colour picker did nothing.
+   #6   The Room 2 wind animation was never visible.
+   #7   A wrong brick answer gave no feedback.
+   #8   No pop-up after breaking the wall.
+   #9   The drawing line jumps if the mouse leaves the drawing area and
+        comes back.
+   #10  Drawing doesn't work on touch screens.
+   #11  The breathing countdown says "1 seconds".
+   #12  The secret word overlapped the vault picture.
+   #13  The Room 2 colours were pure neon and clashed with the design.
+   #14  Colour variable names don't match their colours.
+   #15  Unused variables (gameStarted, game.title).
+   #16  Duplicate / unused CSS rules.
+   #17  The Player dropdown and the secret word list had to be kept in
+        sync by hand.
+
+ Added along the way, from your requests:
+   #18  Details page bigger and more centred.
+   #19  Game must not start without a name and team name.
+   #20  Canvas colour different from last time.
+   #21  Same title on every page.
+   #22  Fixed colour pairs for Room 2 instead of a colour picker.
+
+
+=====================================================================
+ PART 2 - WHAT WAS DONE
+=====================================================================
+
+ FIXED
+ -----
+ #1   Vault can't be unlocked ................................ FIXED
+      The answer is now in capitals, so any mix of upper/lower case
+      works.                                                 Log [9]
+
+ #2   Details form skipped ................................... FIXED
+      Begin -> details page -> Start Game -> Room 1. Each player now
+      gets their own word.                     Log [1], [2], [4], [5]
+
+ #3   Form visible during the game ........................... FIXED
+      Fixed by #2. Start Game hides the form.                Log [5]
+
+ #4   Space in the name box skips breathing .................. FIXED
+      Fixed by #2. The form is hidden during Room 1.
+      The Space-to-skip shortcut is KEPT ON PURPOSE as an
+      admin/testing tool: escapeRoom.js setUpKeyboardControls(),
+      switched on in MAIN PROGRAM by  setUpKeyboardControls();
+      Comment that line out to turn it off before release.
+
+ #5   Colour picker did nothing .............................. FIXED
+      First made it work (Log [10]), then REMOVED the picker in
+      favour of fixed colour pairs (#22).                   Log [11]
+
+ #6   Invisible wind animation ............................... FIXED
+      Wind code removed.                                    Log [13]
+
+ #12  Secret word overlapped the vault ....................... FIXED
+      Vault moved down 30px and made smaller.               Log [14]
+
+ #13  Neon Room 2 colours .................................... FIXED
+      Fixed by #22 (calm colour pairs).                     Log [11]
+
+ #16  Duplicate / unused CSS ................................. FIXED
+      Duplicate #welcomeContent, .welcomeDescription and
+      #gameControls h3 removed.                             Log [16]
+
+ #17  Dropdown / word list out of sync ....................... FIXED
+      The dropdown is built from secretWords automatically. Log [15]
+
+ #18  Details page bigger and centred ........... FIXED (mostly)
+      Frosted card, welcome-style title, centred on screen, bigger
+      inputs.                                          Log [3], [4]
+      NOT DONE: Step 2, smaller sizes for phones (see Part 4).
+
+ #19  Name and team required ................................. FIXED
+      Red message inside the card and a red outline on the empty
+      box.                                        Log [6], [7], [8]
+
+ #21  Same title on every page ............................... FIXED
+      One shared title style. Sizes: welcome 170px, details 130px,
+      rooms 75px (so rooms fit on screen).                  Log [12]
+
+ #22  Fixed colour pairs ..................................... FIXED
+      5 calm pairs (light canvas, dark pen). Picker removed. Log [11]
+
+ CLOSED - BY DESIGN (you decided these stay as they are)
+ ------------------
+ #7   Wrong brick answer, no feedback - players find the right one
+      unprompted.
+ #8   No pop-up after the wall. (This conflicts with a line on the
+      Changes To Make list - see Part 3.)
+
+ CLOSED - WON'T FIX (you decided not to change these)
+ ------------------
+ #10  Touch screens - negligible.
+ #11  "1 seconds" - fine as is.
+ #14  Colour variable names - internal only.
+ #15  Unused variables - left as is.
+ #20  Canvas colour different from last time - scrapped, replaced
+      by #22.
+
+ STILL OPEN
+ ----------
+ #9   Drawing line jump on the Room 2 canvas - waiting for your
+      decision (fix or leave).
+ #18  Step 2 (phone sizes) - not done.
+
+
+=====================================================================
+ PART 3 - THE "CHANGES TO MAKE" LIST (bottom of escapeRoom.js)
+=====================================================================
+
+ Copied word for word from the end of escapeRoom.js. Each line is
+ marked [FIXED], [PARTLY DONE], [OPEN] or [CONFLICT].
+
+ ---------------------------------------------------------------------
+ ///CHANGES TO MAKE ----------------------------------------------
+ ---------------------------------------------------------------------
+
+ /// Add the Enter your details page at the beggining before the breathing chamber
+     [FIXED] Issue #2 (+ #18, #19, #21). Log [1], [2], [4], [5].
+
+ /// Room 4: Release Garden - Make the box for releasing in Room 4 a bit bigger.
+     [OPEN] Not started.
+
+ /// CHNAGE THE PHRASE - think abut the  fact that there might not be enough for 4 rooms.
+      [FIXED] Now easier because of #17: change secretWords (escapeRoom.js lines 56-62) and the vault answer in checkVault() (in CAPITALS), and the Player dropdown follows
+     automatically.
+
+ //// Ensure each player gets thier word and as a team work together to uncode the entire phrase. Each Player number has a different
+ //// word. (randomized)
+      [FIXED] 
+       Done: each player number now gets its own, different word
+       (#2 made the player number actually count. #17 keeps the
+       dropdown matched to the words).
+       Open: the "(randomized)" part. Words are always in phrase
+       order (Player 1 = YOU, Player 2 = FOUND, ...).
+
+ /// Add Closing of the Site.
+     [OPEN] There is a win screen ("you escaped.") but no closing
+     message page yet.
+
+ /// After Room 3 - Have a pop up saying congrats you broke the wall.
+ /// (add some positive note here.)
+     [CONFLICT] You decided in issue #8 that there should be NO pop-up
+     after the wall. Decide which one stands, then remove the other.
+
+ /// The closing of the site. but also the phrase.
+ /// You Found Your Way Within.
+ // "You came here to escape, but perhaps what you really needed was
+ // to reconnect.
+ // Take a deep breath. Leave behind what no longer serves you. Carry
+ // forward the peace, strength, and hope you discovered within
+ // yourself.
+ // Your journey doesn't end here. It begins with you.
+     [OPEN] The phrase "You Found Your Way Within" is already the vault
+     answer (works, #1). This closing text is not shown anywhere yet.
+     It belongs with "Add Closing of the Site" above.
+
+ ---------------------------------------------------------------------
+ ADDED TO THE LIST (still open from the review)
+ ---------------------------------------------------------------------
+
+ /// Room 2: drawing line jumps when the mouse leaves the drawing area
+ /// and comes back in.
+     [OPEN - DECISION NEEDED] Issue #9. Fix or leave?
+
+ /// Details page: smaller card padding and title on phones.
+     [OPEN] Issue #18, Step 2. Code ready in codes.txt section [18]
+     ("PHONE SIZE").
+
+
+=====================================================================
+ PART 4 - WHAT IS LEFT (one place)
+=====================================================================
+
+ DECISIONS NEEDED FROM YOU
+   1. Issue #9   - Room 2 line jump: fix or leave?
+   2. Room 3 pop-up vs. issue #8 (no pop-up): which stands?
+
+ WORK STILL TO DO
+   6. Closing page with the closing message (Part 3, last item).
+   7. Issue #18 Step 2 - phone sizes for the details page
+      (code already written).
+   8. Room 3 - Code Wall Win Screen
+
+ Nothing on this list has been started. Each one can be written up as
+ a proposal for you to approve, the same way as before.

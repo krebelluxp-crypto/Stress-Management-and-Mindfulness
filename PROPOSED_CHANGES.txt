@@ -1,0 +1,282 @@
+=====================================================================
+ THE ESCAPE WITHIN - PROPOSED CHANGES (CLEAN COPY)
+ As of 2026-11-08
+=====================================================================
+
+ Companion files
+   CHANGES_MADE.txt  - start here: the short summary and what is left
+   codes.txt         - ready-to-paste code for each issue
+   This file         - each issue in brief, plus the change log with
+                       the exact lines edited
+
+ How to read it
+   Issue #   = a problem or request (Section 1)
+   Log [#]   = a change made to the code (Section 2)
+   Line numbers in the log are the line numbers at the time of that
+   change. Later changes may have moved them.
+
+ Files: index.html, a4.css, escapeRoom.js
+ (escapeRoom01.js is out of scope.)
+
+
+=====================================================================
+ SECTION 1 - ISSUES
+=====================================================================
+
+ ---------------------------------------------------------------------
+ FIXED
+ ---------------------------------------------------------------------
+
+ #1  Vault could never be unlocked                         Log [9]
+     The typed answer was converted to CAPITALS but compared to a
+     mixed-case phrase. The answer is now "YOU FOUND YOUR WAY WITHIN",
+     so any mix of upper/lower case and extra spaces works.
+
+ #2  Welcome button skipped the player details form
+                                                Log [1] [2] [4] [5]
+     The name, team and player number were never read, so every
+     player got the same word. Flow is now: Begin -> details page ->
+     Start Game -> Room 1.
+
+ #3  Details form stayed on screen during the game          Log [5]
+     Fixed by #2. Start Game now hides the form.
+
+ #4  Typing a space in the name box skipped a breathing cycle
+                                                            Log [5]
+     Fixed by #2. The form is hidden during Room 1.
+     NOTE: Space-to-skip in Room 1 is KEPT as an admin/testing
+     shortcut: escapeRoom.js, setUpKeyboardControls(), switched on in
+     MAIN PROGRAM by  setUpKeyboardControls();  . Comment that line
+     out before release.
+
+ #5  Room 2 colour picker did nothing                      Log [11]
+     Picker removed. Replaced by fixed colour pairs (#22).
+
+ #6  Room 2 wind animation was never visible               Log [13]
+     It drew on the hidden welcome page. Wind code removed.
+
+ #12 Secret word overlapped the vault                      Log [14]
+     Vault moved down 30px and made smaller.
+
+ #13 Room 2 neon colours clashed with the design           Log [11]
+     Fixed by #22 (calm colour pairs).
+
+ #16 Duplicate / unused CSS                                Log [16]
+     Duplicate #welcomeContent, .welcomeDescription and
+     #gameControls h3 removed.
+
+ #17 Player dropdown and secret words kept in sync by hand Log [15]
+     The dropdown is now built from secretWords automatically.
+
+ #18 Details page bigger and centred                   Log [3] [4]
+     Frosted card, welcome-style title, centred on screen, bigger
+     inputs and button.
+     STILL OPEN: phone sizes (see "Open" below).
+
+ #19 Game started without a name or team name      Log [7] [8]
+     Start Game is blocked until both are filled in. A red message
+     appears inside the card, and the empty box gets a red outline
+     and the cursor.
+
+ #21 Rooms used a different title from the welcome page    Log [12]
+     One shared title style (.mainTitle). Sizes: welcome 170px,
+     details 130px, rooms 75px (so each room fits on screen).
+
+ #22 Room 2 colours: fixed canvas + pen pairs              Log [11]
+     5 calm pairs, light canvas / dark pen:
+       butter/olive, pink/blue, aqua/green, peach/rose, lemon/orange.
+     The pair still comes from team name + player number.
+
+ ---------------------------------------------------------------------
+ CLOSED - NO CHANGE
+ ---------------------------------------------------------------------
+
+ #7  Wrong brick answer gives no feedback ......... by design
+     Players should find the right answer unprompted.
+ #8  No pop-up after breaking the wall ............ by design
+     (Conflicts with a line on the Changes To Make list - see
+     CHANGES_MADE.txt, Part 3.)
+ #10 Drawing doesn't work on touch screens ........ won't fix
+ #11 Breathing countdown says "1 seconds" ......... won't fix
+ #14 Colour variable names don't match colours .... won't fix
+ #15 Unused variables (gameStarted, game.title) ... won't fix
+
+ ---------------------------------------------------------------------
+ OPEN
+ ---------------------------------------------------------------------
+
+ #9  Room 2 drawing line jumps                 DECISION NEEDED
+     Dragging out of the drawing area and back in draws a straight
+     line between the two points. Fix or leave?
+
+ #18 Details page on phones (Step 2)           NOT DONE
+     Smaller card padding and title under 700px wide.
+     Code ready: codes.txt section [18], "PHONE SIZE".
+
+ #23 HTML tidy-ups (cosmetic, optional)        PROPOSED
+     Found in the HTML re-check. The page itself passed every check:
+     tags balanced, no duplicate ids, every id and onclick the JS uses
+     exists, no errors. None of these change how the game works.
+       a) index.html line 1 is blank, before <!DOCTYPE html>.
+          Delete it so the doctype is the first line.
+       b) index.html line 121, <!-- ORIGINAL GAME --> is out of date.
+          Change it to <!-- GAME PAGE -->.
+       c) index.html lines 150-151: add a blank line between the
+          <select> and the <!-- MESSAGE IF NAME OR TEAM IS MISSING -->
+          comment, to match the rest of the card.
+       d) Indentation: the welcome page (lines 22-117) starts at column
+          0, and the game page is indented 4 spaces. Indent the welcome
+          page 4 spaces to match.
+       e) Accessibility: these inputs have placeholder text but no
+          label, so screen readers announce them poorly:
+            playerName (145), teamName (147), stressThought (170),
+            vaultAnswer (178)
+          Add an aria-label to each, e.g.
+            <input id="playerName" placeholder="Enter Your Name"
+                   aria-label="Your name">
+
+ Also open: the items from the Changes To Make list at the bottom of
+ escapeRoom.js (Room 4 box, phrase, randomized words, closing page,
+ Room 3 pop-up conflict). See CHANGES_MADE.txt, Parts 3 and 4.
+
+
+=====================================================================
+ SECTION 2 - CHANGE LOG
+=====================================================================
+
+ [1] Welcome button opens the details page                  (#2)
+     index.html 109
+       onclick="startGame()" -> onclick="showDetailsPage()"
+
+ [2] New function showDetailsPage()                         (#2)
+     escapeRoom.js 492-513 added, just above startGame()
+       Hides the welcome page, shows the game page and the details
+       form, hides the canvas.
+
+ [3] Details form restyled as a centred card               (#18)
+     a4.css 440-496 -> 440-508
+       #gameControls: 620px card, frosted background, border, shadow.
+       Inputs full width, 19px. Button 20px 70px padding, 18px.
+     (Superseded by [4].)
+
+ [4] Details page: welcome title, centred on screen, bigger (#18)
+     index.html
+       121       h1.gameTitle given id="gameTitle"
+       124-155   #gameControls rebuilt: new <h1 id="detailsTitle">
+                 ("the escape / within."), inputs + button wrapped in
+                 <div class="detailsCard">
+     a4.css 440-543
+       #gameControls   full-height flex container, centred
+       #detailsTitle   welcome title style, max 130px
+       .detailsCard    the card, now 720px wide, 60px padding
+       inputs          22px 24px padding, 21px text
+       button          22px 80px padding, 20px text
+     escapeRoom.js (showDetailsPage)
+       505-507   form shown as "flex" instead of "block"
+       509-511   small game title hidden on the details page
+
+ [5] Start Game hides the form and shows the game   (#2, #3, #4)
+     escapeRoom.js 549-553 -> 549-559 (end of startGame)
+       Removed: welcomePage / gamePage display lines (did nothing)
+       Added:   hide #gameControls, show #gameTitle, show #MyCanvas
+
+ [6] Name / team stop check, alert version                 (#19)
+     escapeRoom.js 532-538 -> 532-557
+       Removed the "Player" / "Team Mindful" defaults. Added trim +
+       alert + focus + return for an empty name or team.
+     (Replaced by [7].)
+
+ [7] Name / team message inside the card                   (#19)
+     index.html 152-153   <p id="detailsMessage"></p> above Start Game
+     a4.css 545-558       message style (red, 18px) + .inputError
+                          (2px red outline)
+     escapeRoom.js 532-556 -> 532-578
+       Clears the old message and outlines on each click. For a
+       missing name or team: message in the card, red outline,
+       cursor in that box, return. Both alert()s removed.
+
+ [8] Details message shows red                             (#19)
+     a4.css 546
+       #detailsMessage -> #gameControls #detailsMessage
+       ("#gamePage p" / "#gameControls p" were outranking it, making
+       it dark green with a 25px gap.)
+
+ [9] Vault answer accepts any case                          (#1)
+     escapeRoom.js 2677-2678 -> 2677-2680 (checkVault)
+       "You found your way within" -> "YOU FOUND YOUR WAY WITHIN"
+       + a 2-line comment explaining why.
+
+ [10] Colour picker made to work                            (#5)
+      UNDONE by [11]. No longer in the code.
+
+ [11] Fixed calm colour pairs, picker removed     (#22, #5, #13)
+      escapeRoom.js
+        81-98 -> 81-100   canvasColours / penColours replaced:
+                          canvas #FEE572 #FEC0F8 #9AEFDF #FCC5AE #FEF97A
+                          pen    #A3B75A #4466A6 #5EA266 #C35284 #DE8B4C
+                          defaults = pair 0
+        1183              hint: "Your pen colour complements your
+                          canvas."
+        removed           picker code in chooseDrawingColours() and
+                          drawOnCanvas() (8 lines)
+      index.html (drawing controls)
+        text -> "Draw how you are feeling right now."
+        removed  <input type="color" id="drawColor">
+
+ [12] Same title on every page                             (#21)
+      index.html
+        33        <h1 class="mainTitle">                (welcome)
+        124-128   <h1 class="mainTitle gameTitle" id="gameTitle">
+                  the escape <br> <em>within.</em></h1> (rooms)
+        136       <h1 class="mainTitle" id="detailsTitle"> (details)
+      a4.css
+        83-102    NEW .mainTitle / .mainTitle em: Cormorant Garamond,
+                  400, line-height 0.75, letter-spacing -6px, #123f29.
+                  #welcomeContent h1 keeps only size + margin.
+        341-346   .gameTitle: clamp(50px, 6vw, 75px), -3px,
+                  margin 5px 0 18px
+        457-462   #detailsTitle: clamp(70px, 10vw, 130px), -5px,
+                  margin 0 0 45px
+      Note: the rooms were planned at 90px, but that pushed the
+      canvas 23px off a 934px-tall screen, so they use 75px.
+
+ [13] Wind animation removed                                (#6)
+      escapeRoom.js
+        27         removed  var windTimer = 0;
+        402-454    drawWaterRipples(): phase-4 wind check removed,
+                   ripple loop always runs (code unchanged)
+        removed    "DRAW WIND FOR ROOM 2" header + drawWind()
+                   (49 lines)
+
+ [14] Vault moved down and made smaller                    (#12)
+      escapeRoom.js, unityVault()
+        2540  outer centre y   395 -> 425
+        2541  outer radius     165 -> 140
+        2560  inner centre y   395 -> 425
+        2561  inner radius     130 -> 110
+        2573  lock top y       370 -> 400
+        2584  keyhole y        397 -> 427
+
+ [15] Player dropdown built from secretWords               (#17)
+      index.html 149-150
+        5 hand-written <option>s -> empty <select id="playerNumber">
+      escapeRoom.js
+        286       setUpPlayerList();  added to MAIN PROGRAM
+        315-337   NEW setUpPlayerList(): one "Player N" option per word
+
+ [16] Duplicate / unused CSS removed                       (#16)
+      a4.css (550 -> 528 lines)
+        removed  first #welcomeContent rule + comment (was 55-59)
+        removed  .welcomeDescription, .welcomeDescription h2
+                 (was 429-435)
+        removed  #gameControls h3 (was 481-487)
+
+ ---------------------------------------------------------------------
+ TESTING
+ ---------------------------------------------------------------------
+ Changes [1]-[7] were checked together in headless Chrome on a copy
+ of the project after [7]. Each change from [8] on was also checked
+ on its own. The last full run passed: details required,
+ game starts, Room 2 colour pair valid, vault unlocks, restart works,
+ dropdown 1-5, no JavaScript errors. Screenshots were checked for the
+ details page, Room 1, Room 2, the vault and the welcome page.
