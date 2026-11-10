@@ -30,7 +30,7 @@
     <div id="welcomeContent">
 
         <!-- MAIN TITLE -->
-        <h1>
+        <h1 class="mainTitle">
             the escape
             <br>
             <em>within.</em>
@@ -106,7 +106,7 @@
                 is about learning, not being perfect.
             </p>
 
-            <button onclick="startGame()">
+            <button onclick="showDetailsPage()">
                 BEGIN YOUR JOURNEY →
             </button>
 
@@ -121,44 +121,66 @@
     <!-- ORIGINAL GAME -->
     <div id="gamePage" style="display:none">
 
-        <h1 class="gameTitle">The Escape Within</h1>
+        <h1 class="mainTitle gameTitle" id="gameTitle">
+            the escape
+            <br>
+            <em>within.</em>
+        </h1>
 
         <canvas id="MyCanvas"></canvas>
 
+        <!-- PLAYER DETAILS PAGE -->
         <div id="gameControls">
 
-            <input id="playerName" placeholder="Enter Your Name">
+            <!-- SAME TITLE AS THE WELCOME PAGE -->
+            <h1 class="mainTitle" id="detailsTitle">
+                the escape
+                <br>
+                <em>within.</em>
+            </h1>
 
-            <input id="teamName" placeholder="Enter Team Name">
+            <!-- DETAILS CARD -->
+            <div class="detailsCard">
 
-            <select id="playerNumber">
-                <option value="0">Player 1</option>
-                <option value="1">Player 2</option>
-                <option value="2">Player 3</option>
-                <option value="3">Player 4</option>
-                <option value="4">Player 5</option>
-            </select>
+                <input id="playerName" placeholder="Enter Your Name">
 
-            <button onclick="startGame()">Start Game</button>
+                <input id="teamName" placeholder="Enter Team Name">
+
+                <!-- FILLED IN BY setUpPlayerList() IN escapeRoom.js -->
+                <select id="playerNumber"></select>
+                <!-- MESSAGE IF NAME OR TEAM IS MISSING -->
+                <p id="detailsMessage"></p>
+
+                <button onclick="startGame()">Start Game</button>
+
+            </div>
 
         </div>
 
         <div id="drawingControls" style="display:none">
-            <p>Choose a colour and draw your emotion!</p>
-
-            <input type="color" id="drawColor" value="#ff88cc">
+            <p>Draw how you are feeling right now.</p>
 
             <button onclick="clearDrawing()">Clear Drawing</button>
             <button onclick="finishDrawing()">Finish Drawing</button>
         </div>
 
+        
         <div id="gardenControls" style="display:none">
+
             <p>Write a thought you would like to release.</p>
 
-            <input id="stressThought" placeholder="Your thought stays private">
+            <textarea
+                id="stressThought"
+                placeholder="Take your time. Write down anything you would like to let go of..."
+                rows="6"
+            ></textarea>
 
-            <button onclick="releaseThought()">Release Into the Sky</button>
+            <button onclick="releaseThought()">
+                Release Into the Sky
+            </button>
+
         </div>
+
 
         <div id="vaultControls" style="display:none">
             <p>Work together to find the secret phrase!</p>
@@ -168,13 +190,30 @@
             <button onclick="checkVault()">Unlock Vault</button>
         </div>
 
+        <div id="winReflection" style="display:none">
+
+        <h2>You Found Your Way Within.</h2>
+
+        <p>
+            You came here to escape, but perhaps what
+            you really needed was to reconnect.
+        </p>
+
+        <p>
+            Take a deep breath. Leave behind what no longer
+            serves you. Carry forward the peace, strength,
+            and hope you discovered within yourself.
+        </p>
+
+        <p class="finalReflection">
+            Your journey doesn't end here.
+            <br>
+            <strong>It begins with you.</strong>
+        </p>
+
+        </div>
+
     </div>
-
-    <script src="escapeRoom.js"></script>
-
-</body>
-</html>
-
 
     <script src="escapeRoom.js"></script>
 
