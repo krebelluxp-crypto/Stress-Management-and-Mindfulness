@@ -24,7 +24,6 @@ var waterW = 0;
 var waterH = 0;
 
 var waterTimer = 0;
-var windTimer = 0;
 var waterRipples = [];
 
 // COLOURS
@@ -54,11 +53,11 @@ var game = {
 
 // SECRET WORDS
 var secretWords = [
-    "PAUSE",
-    "BREATHE",
-    "NOTICE",
-    "RELEASE",
-    "CONNECT"
+    "YOU",
+    "FOUND",
+    "YOUR",
+    "WAY",
+    "WITHIN"
 ];
 
 
@@ -78,24 +77,26 @@ var drawingCtx;
 var lastDrawX = 0;
 var lastDrawY = 0;
 
+// COLOUR PAIRS: SAME POSITION IN BOTH LISTS = ONE PAIR
+// CANVAS IS THE LIGHT COLOUR, PEN IS THE DARK COLOUR
 var canvasColours = [
-    "#FF0000",
-    "#00FF00",
-    "#0000FF",
-    "#FF8000",
-    "#FF00AA"
+    "#FEE572",   // 0 butter
+    "#FEC0F8",   // 1 pink
+    "#9AEFDF",   // 2 aqua
+    "#FCC5AE",   // 3 peach
+    "#FEF97A"    // 4 lemon
 ];
 
 var penColours = [
-    "#00FFFF",
-    "#FF00FF",
-    "#FFFF00",
-    "#007FFF",
-    "#00FF55"
+    "#A3B75A",   // 0 olive
+    "#4466A6",   // 1 blue
+    "#5EA266",   // 2 green
+    "#C35284",   // 3 rose
+    "#DE8B4C"    // 4 orange
 ];
 
-var drawingBackground = "#FF0000";
-var drawingPen = "#00FFFF";
+var drawingBackground = canvasColours[0];
+var drawingPen = penColours[0];
 
 
 // ROOM 3: BRICK WALL
@@ -282,6 +283,8 @@ setUpKeyboardControls();
 
 setUpFireflies();
 
+setUpPlayerList();
+
 animationLoop();
 
 drawWaterRipples();
@@ -306,6 +309,31 @@ function setUpCanvas() {
 
     canvas.width = w;
     canvas.height = h;
+
+}
+
+
+///-----------------------------------------
+/// SET UP PLAYER LIST (ONE PLAYER PER SECRET WORD)
+///-----------------------------------------
+
+function setUpPlayerList() {
+
+    var list = document.getElementById("playerNumber");
+
+    list.innerHTML = "";
+
+    for (var i = 0; i < secretWords.length; i++) {
+
+        var option = document.createElement("option");
+
+        option.value = i;
+
+        option.textContent = "Player " + (i + 1);
+
+        list.appendChild(option);
+
+    }
 
 }
 
@@ -375,58 +403,48 @@ function drawWaterRipples() {
 
     waterCtx.clearRect(0, 0, waterW, waterH);
 
-    if (phase === 4) {
+    waterTimer += 0.015;
 
-        drawWind();
+    for (var i = 0; i < waterRipples.length; i++) {
 
-    }
+        var r = waterRipples[i];
 
-    else {
+        var movement =
+            Math.sin(waterTimer + r.offset) * 25;
 
-        waterTimer += 0.015;
+        var radius = r.size + movement;
 
-        for (var i = 0; i < waterRipples.length; i++) {
+        for (var j = 0; j < 5; j++) {
 
-            var r = waterRipples[i];
+            var ringSize = radius + j * 30;
 
-            var movement =
-                Math.sin(waterTimer + r.offset) * 25;
+            waterCtx.beginPath();
 
-            var radius = r.size + movement;
+            waterCtx.ellipse(
+                r.x,
+                r.y,
+                ringSize,
+                ringSize * 0.55,
+                0,
+                0,
+                Math.PI * 2
+            );
 
-            for (var j = 0; j < 5; j++) {
+            waterCtx.strokeStyle =
+                "rgba(255,255,255," +
+                (0.55 - j * 0.07) +
+                ")";
 
-                var ringSize = radius + j * 30;
+            waterCtx.lineWidth = 3;
 
-                waterCtx.beginPath();
+            waterCtx.stroke();
 
-                waterCtx.ellipse(
-                    r.x,
-                    r.y,
-                    ringSize,
-                    ringSize * 0.55,
-                    0,
-                    0,
-                    Math.PI * 2
-                );
+        }
 
-                waterCtx.strokeStyle =
-                    "rgba(255,255,255," +
-                    (0.55 - j * 0.07) +
-                    ")";
+        r.y -= r.speed;
 
-                waterCtx.lineWidth = 3;
-
-                waterCtx.stroke();
-
-            }
-
-            r.y -= r.speed;
-
-            if (r.y < -350) {
-                r.y = waterH + 350;
-            }
-
+        if (r.y < -350) {
+            r.y = waterH + 350;
         }
 
     }
@@ -437,58 +455,35 @@ function drawWaterRipples() {
 
 
 ///-----------------------------------------
-/// DRAW WIND FOR ROOM 2
-///-----------------------------------------
-
-function drawWind() {
-
-    windTimer += 0.02;
-
-    for (var i = 0; i < 12; i++) {
-
-        var y = 50 + i * 65;
-
-        var movement =
-            Math.sin(windTimer + i) * 35;
-
-        waterCtx.beginPath();
-
-        for (var x = -100; x < waterW + 100; x += 10) {
-
-            var waveY =
-                y +
-                Math.sin(x * 0.01 + windTimer + i) * 20 +
-                movement;
-
-            if (x === -100) {
-
-                waterCtx.moveTo(x, waveY);
-
-            }
-
-            else {
-
-                waterCtx.lineTo(x, waveY);
-
-            }
-
-        }
-
-        waterCtx.strokeStyle =
-            "rgba(255,255,255,0.55)";
-
-        waterCtx.lineWidth = 3;
-
-        waterCtx.stroke();
-
-    }
-
-}
-
-
-///-----------------------------------------
 /// START GAME
 ///-----------------------------------------
+
+//SHOW PLAYER DETAILS PAGE - FIRST THING I DID
+
+function showDetailsPage() {
+
+    // HIDE THE WELCOME PAGE
+    document.getElementById("welcomePage").style.display =
+        "none";
+
+    // SHOW THE GAME PAGE
+    document.getElementById("gamePage").style.display =
+        "block";
+
+    // SHOW THE PLAYER DETAILS FORM
+    // ("flex" so the title and card are centred on screen)
+    document.getElementById("gameControls").style.display =
+        "flex";
+
+    // HIDE THE SMALL GAME TITLE (THE BIG ONE IS ON THIS PAGE)
+    document.getElementById("gameTitle").style.display =
+        "none";
+
+    // KEEP THE GAME CANVAS HIDDEN UNTIL "START GAME"
+    document.getElementById("MyCanvas").style.display =
+        "none";
+
+}
 
 function startGame() {
 
@@ -502,13 +497,54 @@ function startGame() {
         document.getElementById("playerNumber").value
     );
 
-    if (playerName.trim() === "") {
-        playerName = "Player";
+    // REMOVE EXTRA SPACES FROM THE START AND END
+    playerName = playerName.trim();
+    teamName = teamName.trim();
+
+    // MESSAGE LINE AND INPUT BOXES ON THE DETAILS CARD
+    var detailsMessage =
+        document.getElementById("detailsMessage");
+
+    var nameBox =
+        document.getElementById("playerName");
+
+    var teamBox =
+        document.getElementById("teamName");
+
+    // CLEAR ANY OLD MESSAGE AND RED OUTLINES
+    detailsMessage.textContent = "";
+
+    nameBox.classList.remove("inputError");
+    teamBox.classList.remove("inputError");
+
+    // STOP CHECK: NAME IS REQUIRED
+    if (playerName === "") {
+
+        detailsMessage.textContent =
+            "Please enter your name before starting.";
+
+        nameBox.classList.add("inputError");
+
+        nameBox.focus();
+
+        return;
+
     }
 
-    if (teamName.trim() === "") {
-        teamName = "Team Mindful";
+    // STOP CHECK: TEAM NAME IS REQUIRED
+    if (teamName === "") {
+
+        detailsMessage.textContent =
+            "Please enter your team name before starting.";
+
+        teamBox.classList.add("inputError");
+
+        teamBox.focus();
+
+        return;
+
     }
+
 
     score = 0;
 
@@ -519,11 +555,17 @@ function startGame() {
 
     phase = 3;
 
-    document.getElementById("welcomePage").style.display =
+    // HIDE THE PLAYER DETAILS FORM
+    document.getElementById("gameControls").style.display =
         "none";
 
-    document.getElementById("gamePage").style.display =
-        "block";
+    // SHOW THE SMALL GAME TITLE AGAIN
+    document.getElementById("gameTitle").style.display =
+        "";
+
+    // SHOW THE GAME CANVAS
+    document.getElementById("MyCanvas").style.display =
+        "";
 
     console.log("Game Started!");
 
@@ -1675,9 +1717,7 @@ function drawBrickPieces() {
             i--;
 
         }
-
     }
-
 }
 
 
@@ -1834,9 +1874,7 @@ function clickBrick(x, y) {
             break;
 
         }
-
     }
-
 }
 
 
@@ -2499,8 +2537,8 @@ function unityVault() {
 
     ctx.arc(
         w / 2,
-        395,
-        165,
+        425,
+        140,
         0,
         Math.PI * 2
     );
@@ -2519,8 +2557,8 @@ function unityVault() {
 
     ctx.arc(
         w / 2,
-        395,
-        130,
+        425,
+        110,
         0,
         Math.PI * 2
     );
@@ -2532,7 +2570,7 @@ function unityVault() {
 
     ctx.fillRect(
         w / 2 - 30,
-        370,
+        400,
         60,
         65
     );
@@ -2543,7 +2581,7 @@ function unityVault() {
 
     ctx.arc(
         w / 2,
-        397,
+        427,
         8,
         0,
         Math.PI * 2
@@ -2604,8 +2642,10 @@ function checkVault() {
 
     answer = answer.replace(/\s+/g, " ");
 
+    // ALL CAPITALS, BECAUSE THE TYPED ANSWER IS MADE CAPITALS ABOVE
+    // (SO "you found...", "YOU FOUND..." AND "You Found..." ALL WORK)
     var correctAnswer =
-        "PAUSE BREATHE NOTICE RELEASE CONNECT";
+        "YOU FOUND YOUR WAY WITHIN";
 
     if (answer === correctAnswer) {
 
@@ -2618,7 +2658,6 @@ function checkVault() {
         hideControls();
 
         console.log("Vault Unlocked!");
-
     }
 
     else {
@@ -2626,7 +2665,6 @@ function checkVault() {
         alert(
             "Incorrect phrase! Work together and try again."
         );
-
     }
 
 }
@@ -2655,7 +2693,6 @@ function finishRoom() {
 
         document.getElementById("drawingControls").style.display =
             "block";
-
     }
 
     // ENTER ROOM 4
@@ -2663,7 +2700,6 @@ function finishRoom() {
 
         document.getElementById("gardenControls").style.display =
             "block";
-
     }
 
     // ENTER ROOM 5
@@ -2671,7 +2707,6 @@ function finishRoom() {
 
         document.getElementById("vaultControls").style.display =
             "block";
-
     }
 
     console.log("Room Completed!");
@@ -2789,7 +2824,6 @@ function drawWinScreen() {
         w / 2,
         680
     );
-
 }
 
 
@@ -2798,27 +2832,18 @@ function drawWinScreen() {
 ///===========================================
 
 function resetGame() {
-
     score = 0;
-
     gameStarted = false;
     game.finished = false;
-
     resetRoomVariables();
-
     phase = 1;
-
     document.getElementById("welcomePage").style.display =
         "block";
-
     document.getElementById("gamePage").style.display =
         "none";
-
     document.getElementById("gameControls").style.display =
         "block";
-
     console.log("Game Reset!");
-
 }
 
 
@@ -2827,11 +2852,9 @@ function resetGame() {
 ///===========================================
 
 function setUpMouseControls() {
-
     canvas.onclick = function(e) {
 
         var mouse = getMousePosition(e);
-
         var x = mouse.x;
         var y = mouse.y;
 
@@ -2839,54 +2862,36 @@ function setUpMouseControls() {
         if (phase === 3) {
 
             if (breathingFinished === true) {
-
                 finishRoom();
-
             }
-
         }
 
         // ROOM 3
         else if (phase === 5) {
-
             clickBrick(x, y);
-
         }
 
         // ROOM 4
         else if (phase === 6) {
-
             if (gardenFinished === true) {
-
                 finishRoom();
-
             }
-
         }
 
         // WIN SCREEN
         else if (phase === 8) {
-
             resetGame();
-
         }
-
     };
 
 
     // START DRAWING
     canvas.onmousedown = function(e) {
-
         if (phase === 4) {
-
             drawing = false;
-
             drawOnCanvas(e);
-
             drawing = true;
-
         }
-
     };
 
 
@@ -2897,11 +2902,8 @@ function setUpMouseControls() {
             phase === 4 &&
             drawing === true
         ) {
-
             drawOnCanvas(e);
-
         }
-
     };
 
 
@@ -2909,16 +2911,12 @@ function setUpMouseControls() {
     canvas.onmouseup = function() {
 
         drawing = false;
-
     };
 
 
     canvas.onmouseleave = function() {
-
         drawing = false;
-
     };
-
 }
 
 
@@ -2929,7 +2927,6 @@ function setUpMouseControls() {
 window.onresize = function() {
 
     setUpWaterCanvas();
-
 };
 
 
@@ -2947,10 +2944,17 @@ window.onresize = function() {
 // MAXIMUM SCORE = 500
 
 
-///CHANGES TO MAKE 
-/// Add the actualy words for Room 4 
-/// Room 2 - Write what you feel now ( keep it the same)
+///-----------------------------------------------------------------------------------------
+///CHANGES TO MAKE ---------------------------------------------------------
+/// Add the Enter your details page at the beggining before the breathing chamber 
+/// Room 4: Release Garden - Make the box for releasing in Room 4 a bit bigger. 
 /// CHNAGE THE PHRASE - think abut the  fact that there might not be enought for 4 rooms. 
-//// Should be scramble words that they unscramble. 
-/// 
-// Change background to blue instead 
+//// Ensure each player gets thier word and as a team work together to uncode the entire phrase. Each Player number has a different word. (randomized) 
+/// Add Closing of the Site. 
+/// After Room 3 - Have a pop up saying congrats you broke the wall. (add some positive note here.)
+
+/// The closing of the site. but also the phrase. 
+/// You Found Your Way Within. 
+// “You came here to escape, but perhaps what you really needed was to reconnect.
+// Take a deep breath. Leave behind what no longer serves you. Carry forward the peace, strength, and hope you discovered within yourself.
+// Your journey doesn't end here. It begins with you.
